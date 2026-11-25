@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Montagem · lcd_show</title>
+<style>
+  body{margin:0;background:#F1F4F3;color:#16212B;font:16px/1.6 -apple-system,system-ui,"Segoe UI",sans-serif;padding:24px 16px 48px}
+  main{max-width:1040px;margin:0 auto;display:grid;gap:32px}
+  h1{font-size:2rem;margin:0}
+  h2{font-size:1.4rem;margin:0 0 8px}
+  p{margin:0 0 10px;max-width:68ch}
+  .lede{color:#5A6772;max-width:72ch;margin:6px 0 0}
+  .m{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+  @media (max-width:820px){.m{grid-template-columns:1fr}}
+  .fig{background:#fff;border:1px solid #D2D9DA;border-radius:10px;padding:14px}
+  svg{display:block;width:100%;height:auto}
+  ol{margin:0;padding-left:1.4em;display:grid;gap:8px}
+  ul{margin:0;padding-left:1.2em;display:grid;gap:8px}
+  .note{color:#5A6772;font-size:.9rem}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.9em}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Montagem do lcd_show</h1>
+  <p class="lede">Duas partes: o display (igual ao lcd_ola, 11 fios) e os 5 LEDs na protoboard (5 fios, mais abaixo). O display funciona sem os LEDs. Peças do display: o LCD, 11 fios macho-macho, 1 resistor de <b>1 kΩ</b> (marrom, preto, vermelho, dourado) e a protoboard, para o resistor do contraste. Monte com o USB desconectado. No desenho o conector do LCD está à direita só para os fios não cruzarem a tela: vire o display e confira o <b>1</b> e o <b>14</b> impressos no verso, ao lado do conector. Para enviar: <code>arduino-cli upload -p /dev/cu.usbmodem212201 --fqbn arduino:avr:uno lcd_show</code></p>
+</header>
+
+<section class="m">
+  <div class="fig"><svg id="s" viewBox="0 0 560 440" role="img" aria-label="Mapa de ligação dos 14 pinos do LCD aos pinos do Arduino"></svg></div>
+  <ol>
+    <li>Desconecte o USB.</li>
+    <li>Fio preto: LCD <b>1</b> → <b>GND</b> da fileira POWER (borda de baixo do Uno).</li>
+    <li>Fio vermelho: LCD <b>2</b> → <b>5V</b> da fileira POWER.</li>
+    <li>Contraste, pela protoboard (desenho abaixo): fio do LCD <b>3</b> → furo <b>a20</b>; resistor de <b>1 kΩ</b> do <b>b20</b> até o <b>trilho azul (−)</b>; fio preto do <b>trilho azul (−)</b> → o <b>outro GND</b> da fileira POWER.</li>
+    <li>LCD <b>4</b> → pino <b>12</b> (fileira DIGITAL, borda de cima).</li>
+    <li>Fio preto: LCD <b>5</b> → <b>GND</b> da fileira DIGITAL, ao lado do 13.</li>
+    <li>LCD <b>6</b> → pino <b>11</b>.</li>
+    <li>LCD <b>7, 8, 9 e 10</b> ficam livres.</li>
+    <li>LCD <b>11 → 5</b>, <b>12 → 4</b>, <b>13 → 3</b>, <b>14 → 2</b>.</li>
+    <li>Confira os 11 fios e o resistor e conecte o USB.</li>
+  </ol>
+</section>
+
+<section class="m">
+  <div class="fig">
+    <svg id="bb" viewBox="0 0 520 300" role="img" aria-label="Resistor de 1 kΩ na protoboard entre o fio do pino 3 do LCD e o GND"></svg>
+  </div>
+  <div>
+    <h2>Por que o resistor no pino 3</h2>
+    <p>O pino 3 (V0) controla o contraste. Ligado direto no GND, o contraste fica no máximo e a tela costuma mostrar só retângulos escuros. O resistor de 1 kΩ, junto com os resistores que o display tem no verso (R1 a R5), baixa um pouco o contraste para o texto aparecer.</p>
+    <p>Nenhum outro pino leva resistor: este display não tem luz de fundo, e os sinais ligam direto no Arduino.</p>
+    <p class="note">Use as fileiras 18 a 22 para não misturar com o LED da montagem do pisca_led, que fica nas fileiras 10 e 11.</p>
+  </div>
+</section>
+
+<section class="m">
+  <div class="fig">
+    <svg id="leds" viewBox="0 0 620 440" role="img" aria-label="Cinco LEDs na protoboard ligados aos pinos 6 a 10 do Arduino"></svg>
+  </div>
+  <div>
+    <h2>Parte 2: os 5 LEDs</h2>
+    <p class="note">Peças: 5 LEDs (2 verdes, 2 amarelos, 1 vermelho), 5 resistores de 220 Ω ou 470 Ω e 5 fios. O trilho azul (−) já está ligado ao GND pelo fio preto do contraste, então não precisa de fio de GND a mais.</p>
+    <ol>
+      <li>Desconecte o USB.</li>
+      <li>Para cada LED, use duas fileiras vizinhas da protoboard, conforme a lista abaixo. A <b>perna longa</b> vai na fileira da esquerda (número menor), coluna <b>d</b>; a perna curta na fileira seguinte, também coluna <b>d</b>.</li>
+      <li>Resistor de cada LED: do furo <b>a</b> da fileira da perna curta até o <b>trilho azul (−)</b> logo abaixo.</li>
+      <li>Fio de cada LED: do pino do Arduino até o furo <b>a</b> da fileira da perna longa.
+        <ul>
+          <li>LED <b>vermelho</b>: fileiras 2 e 3, fio do pino <b>~10</b> → a2</li>
+          <li>LED <b>amarelo</b>: fileiras 5 e 6, fio do pino <b>~9</b> → a5</li>
+          <li>LED <b>amarelo</b>: fileiras 8 e 9, fio do pino <b>8</b> → a8</li>
+          <li>LED <b>verde</b>: fileiras 11 e 12, fio do pino <b>7</b> → a11</li>
+          <li>LED <b>verde</b>: fileiras 14 e 15, fio do pino <b>~6</b> → a14</li>
+        </ul>
+      </li>
+      <li>Conecte o USB. Na abertura os LEDs enchem como uma barra; na corrida uma luz vai e volta e todos piscam a cada pulo; no coração o vermelho bate junto; no letreiro a barra mostra o progresso.</li>
+    </ol>
+    <p class="note">O resistor do contraste continua na fileira 20, longe dos LEDs. Os pinos 9, 8, 7 e 6 ficam ao lado dos fios do display (5, 4, 3, 2): confira o número impresso antes de espetar.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Se não funcionar</h2>
+  <ul>
+    <li><b>Ainda aparecem retângulos escuros:</b> o contraste continua alto. Ponha um segundo resistor de 1 kΩ em fila: tire a perna do primeiro do trilho, leve-a para o b22, e ligue o segundo do a22 até o trilho azul (−).</li>
+    <li><b>Texto muito apagado ou invisível:</b> o contraste ficou baixo. Troque o de 1 kΩ pelo de 470 Ω.</li>
+    <li><b>Tela totalmente vazia:</b> confira os fios do LCD 1 e 2 (GND e 5V). Olhe a tela com luz batendo, já que ela não tem luz própria.</li>
+    <li><b>Letras estranhas:</b> algum fio entre LCD 11–14 e Arduino 5, 4, 3, 2 está trocado ou solto. Confira também o 4 → 12 e o 6 → 11.</li>
+  </ul>
+</section>
+</main>
+<script>
+const NS="http://www.w3.org/2000/svg";
+function mk(root){return function(t,a,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;root.appendChild(e);return e;};}
+const M="Menlo, monospace";
+
+/* mapa de ligação */
+(function(){
+const el=mk(document.getElementById("s"));
+el("rect",{x:16,y:16,width:210,height:410,rx:8,fill:"#2E7A3C",stroke:"#1F5A2B"});
+el("rect",{x:30,y:36,width:66,height:370,rx:3,fill:"#C5CACF"});
+el("rect",{x:38,y:46,width:50,height:350,rx:2,fill:"#A3BB6E"});
+el("text",{x:63,y:221,"text-anchor":"middle","font-size":13,fill:"#26331A","font-family":M,transform:"rotate(90 63 221)"},"LCD 16×2");
+el("text",{x:420,y:30,"text-anchor":"middle","font-size":11,fill:"#5A6772","font-family":M,"letter-spacing":1},"NO ARDUINO");
+const PY=p=>52+(p-1)*27,names=["VSS","VDD","V0","RS","RW","E","D0","D1","D2","D3","D4","D5","D6","D7"];
+const W={1:["#2A2A2A","GND · fileira POWER"],2:["#E0475A","5V · fileira POWER"],3:["#8A6A3A","a20 → 1 kΩ → GND POWER"],4:["#2C64C8","pino 12 · DIGITAL"],5:["#2A2A2A","GND · DIGITAL, ao lado do 13"],6:["#7D4FB5","pino 11 · DIGITAL"],11:["#EE7B22","pino 5 · DIGITAL"],12:["#F2C230","pino 4 · DIGITAL"],13:["#2E9E4F","pino ~3 · DIGITAL"],14:["#C9CED4","pino 2 · DIGITAL"]};
+for(let p=1;p<=14;p++){const y=PY(p);
+  el("text",{x:188,y:y+4,"text-anchor":"end","font-size":11,fill:"#E8F0E4","font-family":M},p+" "+names[p-1]);
+  el("rect",{x:198,y:y-7,width:14,height:14,fill:"#1C1F22"});el("circle",{cx:205,cy:y,r:3.4,fill:"#C8A64B"});
+  const w=W[p];if(w){el("line",{x1:205,y1:y,x2:330,y2:y,stroke:w[0],"stroke-width":5,"stroke-linecap":"round"});
+    el("rect",{x:330,y:y-11,width:220,height:22,rx:4,fill:"#E7ECEB",stroke:"#D2D9DA"});
+    el("text",{x:340,y:y+4,"font-size":11.5,fill:"#16212B","font-family":M},w[1]);}}
+el("path",{d:`M222 ${PY(7)-8} h12 v${PY(10)-PY(7)+16} h-12`,fill:"none",stroke:"#16212B","stroke-width":1.5});
+el("text",{x:244,y:(PY(7)+PY(10))/2+4,"font-size":12,fill:"#5A6772"},"7 a 10: deixe livres");
+})();
+
+/* protoboard do contraste: fileiras 17 a 23, metade a–e + trilhos */
+(function(){
+const el=mk(document.getElementById("bb"));
+const X=c=>90+(c-17)*48, R={e:40,d:68,c:96,b:124,a:152}, RN=196, RP=224;
+el("rect",{x:40,y:16,width:400,height:228,rx:6,fill:"#F3F1EC",stroke:"#CFCBC2"});
+el("line",{x1:60,y1:180,x2:430,y2:180,stroke:"#3B82C4","stroke-width":2});
+el("line",{x1:60,y1:240,x2:430,y2:240,stroke:"#E0475A","stroke-width":2});
+for(const [r,y] of Object.entries(R)){
+  el("text",{x:56,y:y+5,"text-anchor":"middle","font-size":13,fill:"#6B6A66","font-family":M},r);
+  for(let c=17;c<=23;c++)el("rect",{x:X(c)-7,y:y-7,width:14,height:14,rx:2,fill:"#3B3B3B"});
+}
+for(let c=17;c<=23;c++){el("rect",{x:X(c)-7,y:RN-7,width:14,height:14,rx:2,fill:"#3B3B3B"});el("rect",{x:X(c)-7,y:RP-7,width:14,height:14,rx:2,fill:"#3B3B3B"});
+  el("text",{x:X(c),y:30,"text-anchor":"middle","font-size":12,"font-weight":c===20?700:400,fill:c===20?"#A85A22":"#6B6A66","font-family":M},c);}
+el("text",{x:56,y:RN+6,"text-anchor":"middle","font-size":18,"font-weight":700,fill:"#3B82C4","font-family":M},"−");
+el("text",{x:56,y:RP+6,"text-anchor":"middle","font-size":18,"font-weight":700,fill:"#E0475A","font-family":M},"+");
+const x20=X(20);
+// fio do LCD 3 até a20
+el("path",{d:`M${x20} ${R.a} C${x20} 120 ${x20+90} 90 470 60`,fill:"none",stroke:"#8A6A3A","stroke-width":6,"stroke-linecap":"round"});
+el("circle",{cx:x20,cy:R.a,r:6,fill:"#5E4524"});
+el("text",{x:476,y:52,"text-anchor":"middle","font-size":12,fill:"#16212B","font-family":M},"LCD 3");
+// resistor de b20 ao trilho −
+const x2=X(19);
+el("line",{x1:x20,y1:R.b,x2:x2,y2:RN,stroke:"#9AA1A8","stroke-width":3});
+const mx=(x20+x2)/2,my=(R.b+RN)/2,ang=Math.atan2(RN-R.b,x2-x20)*180/Math.PI;
+const g=document.createElementNS(NS,"g");g.setAttribute("transform",`translate(${mx} ${my}) rotate(${ang})`);document.getElementById("bb").appendChild(g);
+const gl=mk(g);
+gl("rect",{x:-24,y:-9,width:48,height:18,rx:8,fill:"#E0C79C",stroke:"#B89C6E"});
+[["#7B4A2A",-16],["#1E1E1E",-8],["#D0312D",0],["#C9A227",12]].forEach(([c,x])=>gl("rect",{x:x,y:-9,width:4.5,height:18,fill:c}));
+el("circle",{cx:x20,cy:R.b,r:4,fill:"#9AA1A8"});el("circle",{cx:x2,cy:RN,r:4,fill:"#9AA1A8"});
+el("text",{x:x2-30,y:150,"text-anchor":"end","font-size":13,fill:"#16212B","font-family":M},"1 kΩ");
+// fio preto do trilho − ao GND
+const x1=X(17);
+el("path",{d:`M${x1} ${RN} C${x1-30} 260 ${x1-40} 280 ${x1-60} 292`,fill:"none",stroke:"#2A2A2A","stroke-width":6,"stroke-linecap":"round"});
+el("circle",{cx:x1,cy:RN,r:6,fill:"#111111"});
+el("text",{x:x1+4,y:292,"font-size":12,fill:"#16212B","font-family":M},"→ GND (fileira POWER)");
+})();
+
+/* 5 LEDs: fileiras 1 a 16, metade a–e + trilhos; Arduino embaixo (fora de escala) */
+(function(){
+const svg=document.getElementById("leds"),el=mk(svg);
+const X=c=>50+(c-1)*34, R={e:60,d:90,c:120,b:150,a:180}, RN=216, RP=244;
+el("rect",{x:20,y:16,width:580,height:250,rx:6,fill:"#F3F1EC",stroke:"#CFCBC2"});
+el("line",{x1:40,y1:202,x2:590,y2:202,stroke:"#3B82C4","stroke-width":2});
+el("line",{x1:40,y1:258,x2:590,y2:258,stroke:"#E0475A","stroke-width":2});
+for(const [r,y] of Object.entries(R)){
+  el("text",{x:32,y:y+4,"text-anchor":"middle","font-size":12,fill:"#6B6A66","font-family":M},r);
+  for(let c=1;c<=16;c++)el("rect",{x:X(c)-5.5,y:y-5.5,width:11,height:11,rx:2,fill:"#3B3B3B"});
+}
+for(let c=1;c<=16;c++){
+  el("rect",{x:X(c)-5.5,y:RN-5.5,width:11,height:11,rx:2,fill:"#3B3B3B"});el("rect",{x:X(c)-5.5,y:RP-5.5,width:11,height:11,rx:2,fill:"#3B3B3B"});
+  el("text",{x:X(c),y:36,"text-anchor":"middle","font-size":11,fill:"#6B6A66","font-family":M},c);
+}
+el("text",{x:32,y:RN+5,"text-anchor":"middle","font-size":16,"font-weight":700,fill:"#3B82C4","font-family":M},"−");
+el("text",{x:32,y:RP+5,"text-anchor":"middle","font-size":16,"font-weight":700,fill:"#E0475A","font-family":M},"+");
+// Arduino (só os pinos usados)
+el("rect",{x:20,y:330,width:580,height:110,fill:"#1F6295"});
+el("rect",{x:60,y:318,width:500,height:26,rx:2,fill:"#17191C"});
+el("text",{x:310,y:420,"text-anchor":"middle","font-size":11,fill:"#CFE0EE","font-family":M},"borda de cima do Arduino (só os pinos usados, fora de escala)");
+const LED=[["~10",2,"#E5484D","#B22D33"],["~9",5,"#F2CF1F","#B89A10"],["8",8,"#F2CF1F","#B89A10"],["7",11,"#5CC26E","#2E8A42"],["~6",14,"#5CC26E","#2E8A42"]];
+const WIRE=["#E0475A","#F2C230","#EE7B22","#2E9E4F","#2C64C8"];
+LED.forEach(([pin,row,cor,borda],i)=>{
+  const sx=100+i*104, ax=X(row), kx=X(row+1);
+  el("rect",{x:sx-7,y:324,width:14,height:14,fill:"#3E444B"});
+  el("text",{x:sx,y:372,"text-anchor":"middle","font-size":14,"font-weight":600,fill:"#FFFFFF","font-family":M},pin);
+  // fio
+  el("path",{d:`M${sx} 331 C${sx} 290 ${ax} 230 ${ax} 184`,fill:"none",stroke:WIRE[i],"stroke-width":5,"stroke-linecap":"round","stroke-opacity":.9});
+  el("circle",{cx:ax,cy:R.a,r:5,fill:"#222222"});
+  // resistor do a(perna curta) até o trilho −, na fileira seguinte
+  el("line",{x1:kx,y1:R.a,x2:X(row+2),y2:RN,stroke:"#9AA1A8","stroke-width":3});
+  const mx=(kx+X(row+2))/2,my=(R.a+RN)/2,ang=Math.atan2(RN-R.a,X(row+2)-kx)*180/Math.PI;
+  const g=document.createElementNS(NS,"g");g.setAttribute("transform",`translate(${mx} ${my}) rotate(${ang})`);svg.appendChild(g);
+  mk(g)("rect",{x:-11,y:-6,width:22,height:12,rx:5,fill:"#E0C79C",stroke:"#B89C6E"});
+  // LED (visto de cima) com as pernas em d
+  el("circle",{cx:ax,cy:R.d,r:4,fill:"#9AA1A8"});el("circle",{cx:kx,cy:R.d,r:4,fill:"#9AA1A8"});
+  el("circle",{cx:(ax+kx)/2,cy:R.d-14,r:14,fill:cor,stroke:borda,"stroke-width":1.5});
+  el("path",{d:`M${kx-4} ${R.d-26} V${R.d-2}`,stroke:borda,"stroke-width":2});
+  el("text",{x:ax,y:R.d+22,"text-anchor":"middle","font-size":12,"font-weight":700,fill:"#16212B","font-family":M},"+");
+});
+})();
+</script>
+</body>
+</html>

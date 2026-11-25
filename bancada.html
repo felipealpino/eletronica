@@ -1,0 +1,1008 @@
+<title>Bancada de Eletrônica</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: bancada técnica — uma ficha por peça (desenho interativo + ficha técnica), rotuladas com designadores de placa (U1, D1, R1, DS1) */
+:root{
+  --bg:#F1F4F3; --surface:#FFFFFF; --sunken:#E7ECEB; --ink:#16212B; --muted:#5A6772; --line:#D2D9DA;
+  --accent:#1D5E8C; --copper:#A85A22; --ok:#2B7A4B; --warn:#B42318; --warn-bg:#FBECE9; --code:#EDF1F2;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1319; --surface:#141C24; --sunken:#1A242D; --ink:#E4E9ED; --muted:#93A1AD; --line:#26323D;
+    --accent:#6AB0E2; --copper:#E39A5F; --ok:#6CCB94; --warn:#FF8B7E; --warn-bg:#371B18; --code:#1A242D;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1319; --surface:#141C24; --sunken:#1A242D; --ink:#E4E9ED; --muted:#93A1AD; --line:#26323D;
+  --accent:#6AB0E2; --copper:#E39A5F; --ok:#6CCB94; --warn:#FF8B7E; --warn-bg:#371B18; --code:#1A242D;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0;
+}
+.wrap{max-width:1120px;margin:0 auto}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.6rem,6vw,4rem);letter-spacing:.01em}
+h2{font-size:clamp(1.9rem,4vw,2.5rem)}
+h3{font-size:1.35rem;font-weight:600}
+p{margin:0}
+.mono{font-family:var(--f-mono)}
+.label{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* header */
+header.top{padding-block:48px 32px;display:grid;gap:18px}
+.lede{max-width:64ch;color:var(--muted);font-size:1.06rem}
+.inv{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);text-decoration:none;font-size:.92rem}
+.chip:hover,.chip:focus-visible{border-color:var(--accent)}
+.chip .ref{font-family:var(--f-mono);font-size:.75rem;color:var(--copper);font-weight:600}
+.chip .qty{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.chip.soon{border-style:dashed}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:8px}
+.rule{padding:14px 16px;background:var(--warn-bg);border-radius:8px;font-size:.94rem;min-width:0}
+.rule b{color:var(--warn);display:block;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+
+/* sections */
+section.part-sec{border-top:1px solid var(--line);padding-block:52px}
+.part-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.ref-big{font-family:var(--f-mono);font-weight:600;color:var(--copper);font-size:1rem;letter-spacing:.04em}
+.sub{color:var(--muted);max-width:70ch;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.fig svg{display:block;width:100%;height:auto}
+.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:8px}
+.col{display:grid;gap:20px;min-width:0}
+.prose{display:grid;gap:12px}
+.prose p{max-width:66ch}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:6px}
+.specs{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;font-size:.94rem}
+.specs dt{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);padding-top:2px}
+.specs dd{margin:0;font-variant-numeric:tabular-nums}
+.readout{background:var(--sunken);border-radius:8px;padding:14px 16px;display:grid;gap:6px;min-height:150px}
+.readout h3{font-size:1.25rem}
+.readout .tip{font-size:.9rem;color:var(--muted)}
+.note{font-size:.88rem;color:var(--muted)}
+.warnline{background:var(--warn-bg);border-radius:6px;padding:10px 12px;font-size:.92rem}
+.warnline b{color:var(--warn)}
+.est{font-family:var(--f-mono);font-size:.7rem;padding:1px 6px;border:1px solid var(--line);border-radius:4px;color:var(--muted);white-space:nowrap}
+
+/* interactive svg parts */
+.hot{cursor:pointer;outline:none}
+.hot .hit{fill:transparent;stroke:transparent;stroke-width:2.5;stroke-dasharray:6 4}
+.hot:hover .hit,.hot:focus-visible .hit{stroke:var(--copper)}
+.hot.on .hit{stroke:var(--copper);fill:color-mix(in srgb,var(--copper) 16%,transparent)}
+.svg-ink{fill:var(--ink)}
+.svg-muted{fill:var(--muted)}
+.sch{stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* forms */
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+.field{display:grid;gap:4px;min-width:0;flex:1 1 130px}
+.field label{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+select,input[type=range]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+input[type=range]{padding:0;accent-color:var(--accent);border:none;background:transparent}
+select:focus-visible,input:focus-visible,button:focus-visible,.hot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.result{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline}
+.big{font-family:var(--f-display);font-size:2.2rem;font-weight:700;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:.85rem;padding:5px 12px;border:0;background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+
+/* tables & code */
+.scroll{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--copper);font-weight:600}
+tr.lit td{background:color-mix(in srgb,var(--copper) 14%,transparent)}
+tr.off td{color:var(--muted)}
+.code{position:relative;background:var(--code);border-radius:8px;min-width:0}
+.code pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--f-mono);font-size:.84rem;line-height:1.55}
+.code button{position:absolute;top:8px;right:8px;font:inherit;font-size:.75rem;padding:3px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink);cursor:pointer}
+
+/* steps */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start}
+ol.steps li::before{content:counter(s);font-family:var(--f-display);font-size:1.6rem;font-weight:700;color:var(--copper);line-height:1.1}
+ol.steps h3{margin-bottom:4px}
+
+.soonbox{border:1.5px dashed var(--line);border-radius:10px;padding:20px;display:grid;gap:14px}
+.cmp{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);font-size:.92rem}
+.cmp div{padding:6px 10px;border-bottom:1px solid var(--line)}
+.cmp .h{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding-block:24px 48px;color:var(--muted);font-size:.85rem}
+/* montagens */
+.mont{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:18px}
+@media (max-width:860px){.mont{grid-template-columns:minmax(0,1fr)}}
+.mont + .mont{margin-top:48px}
+.mont h3{font-size:1.5rem;margin-bottom:6px}
+.needs{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.future{display:none}
+.now{filter:drop-shadow(0 0 5px var(--copper))}
+.mlist{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:4px;counter-reset:m}
+.mlist li{counter-increment:m;position:relative;padding:8px 10px 8px 42px;border-radius:6px;cursor:pointer;color:var(--muted);font-size:.95rem;outline:none}
+.mlist li::before{content:counter(m);position:absolute;left:14px;top:8px;font-family:var(--f-mono);font-weight:600}
+.mlist li.done{color:var(--ink)}
+.mlist li.done::before{content:"✓";color:var(--ok)}
+.mlist li.cur{background:var(--sunken);color:var(--ink)}
+.mlist li.cur::before{color:var(--copper)}
+.mlist li:focus-visible{outline:2px solid var(--accent)}
+.mnav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mnav button{font:inherit;font-size:.88rem;padding:6px 14px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}
+.mnav button.primary{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.mnav button:disabled{opacity:.4;cursor:default}
+.mcount{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);margin-left:auto}
+.badge rect{fill:var(--sunken);stroke:var(--line)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+.pointer{transition:transform .35s cubic-bezier(.3,.7,.3,1)}
+.bb-hole{transition:fill .12s}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="label">Inventário · fotos de 25/11/2026</p>
+  <h1>Bancada de Eletrônica</h1>
+  <p class="lede">O que temos hoje, para que serve cada peça e como usar sem queimar nada. Toque nos desenhos: as partes destacadas explicam o que fazem. Este documento cresce junto com a bancada.</p>
+  <nav class="inv" aria-label="Itens da bancada">
+    <a class="chip" href="#uno"><span class="ref">U1</span>Arduino Uno R3<span class="qty">×1</span></a>
+    <a class="chip" href="#leds"><span class="ref">D*</span>LEDs 5 mm<span class="qty">≈10</span></a>
+    <a class="chip" href="#resistores"><span class="ref">R*</span>Resistores 220 Ω a 100 kΩ<span class="qty">≈30</span></a>
+    <a class="chip" href="#lcd"><span class="ref">DS1</span>Display LCD 16×2<span class="qty">×1</span></a>
+    <a class="chip" href="#multimetro"><span class="ref">ferr.</span>Multímetro digital<span class="qty">×1</span></a>
+    <a class="chip" href="#protoboard"><span class="ref">ferr.</span>Protoboard 400 pontos<span class="qty">×1</span></a>
+    <a class="chip" href="#montagens"><span class="ref">guia</span>Como ligar<span class="qty">3 montagens</span></a>
+    <a class="chip soon" href="#esp32"><span class="ref">U2</span>ESP32 + kit<span class="qty">chegando</span></a>
+  </nav>
+  <div class="rules" aria-label="Regras de ouro">
+    <div class="rule"><b>Regra 1</b>Nunca ligue 5V direto no GND. Isso é um curto-circuito e pode queimar a placa ou a porta USB.</div>
+    <div class="rule"><b>Regra 2</b>LED sempre com resistor em série. Sem ele, o LED puxa corrente demais e queima (e pode levar o pino junto).</div>
+    <div class="rule"><b>Regra 3</b>Monte e mude fios com tudo desligado. Só conecte o USB depois de conferir o circuito.</div>
+  </div>
+</header>
+
+<!-- ============ ARDUINO ============ -->
+<section class="part-sec" id="uno">
+  <div class="part-head"><span class="ref-big">U1</span><h2>Arduino Uno R3</h2></div>
+  <p class="sub">A placa que roda o seu programa. Você escreve o código no computador (Arduino IDE), envia pelo USB e ela passa a ler sensores e controlar LEDs, displays e motores pelos pinos das bordas.</p>
+  <div class="grid">
+    <figure class="fig" style="margin:0">
+      <svg id="uno-svg" viewBox="0 0 560 410" role="img" aria-label="Desenho do Arduino Uno R3 com partes clicáveis">
+        <rect x="30" y="16" width="500" height="384" rx="12" fill="#1F6295" stroke="#123F63" stroke-width="2"/>
+        <circle cx="512" cy="104" r="7" fill="#DDE4E9"/><circle cx="482" cy="386" r="7" fill="#DDE4E9"/><circle cx="50" cy="234" r="7" fill="#DDE4E9"/>
+        <!-- logo -->
+        <g fill="none" stroke="#FFFFFF" stroke-width="3" opacity=".9">
+          <ellipse cx="382" cy="122" rx="17" ry="13"/><ellipse cx="414" cy="122" rx="17" ry="13"/>
+        </g>
+        <path d="M376 122h12M408 122h12M414 116v12" stroke="#FFFFFF" stroke-width="2.5" opacity=".9"/>
+        <text x="398" y="160" text-anchor="middle" fill="#FFFFFF" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="17" letter-spacing="2">ARDUINO</text>
+        <rect x="364" y="170" width="68" height="34" rx="17" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="398" y="195" text-anchor="middle" fill="#FFFFFF" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="24" letter-spacing="2">UNO</text>
+
+        <g class="hot" data-part="usb" tabindex="0" role="button" aria-label="Porta USB">
+          <rect x="6" y="60" width="104" height="92" rx="3" fill="#C9CED4" stroke="#7F8891"/>
+          <rect x="24" y="80" width="68" height="52" rx="2" fill="#A6AEB7"/>
+          <rect x="4" y="58" width="108" height="96" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="reset" tabindex="0" role="button" aria-label="Botão reset">
+          <rect x="40" y="24" width="34" height="28" rx="3" fill="#E6E9EC" stroke="#8E979F"/>
+          <circle cx="57" cy="38" r="8" fill="#D2332F"/>
+          <rect x="36" y="20" width="42" height="36" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="dc" tabindex="0" role="button" aria-label="Conector de alimentação">
+          <rect x="10" y="290" width="96" height="80" rx="6" fill="#23262A"/>
+          <circle cx="44" cy="330" r="19" fill="#3A3F45"/><circle cx="44" cy="330" r="6" fill="#8D949B"/>
+          <rect x="6" y="286" width="104" height="88" class="hit" rx="6"/>
+        </g>
+        <g class="hot" data-part="reg" tabindex="0" role="button" aria-label="Regulador e capacitores">
+          <circle cx="150" cy="262" r="17" fill="#C9CED4" stroke="#7F8891"/><text x="150" y="266" text-anchor="middle" font-size="10" fill="#26292D" font-family="IBM Plex Mono, monospace">47µ</text>
+          <circle cx="192" cy="262" r="17" fill="#C9CED4" stroke="#7F8891"/><text x="192" y="266" text-anchor="middle" font-size="10" fill="#26292D" font-family="IBM Plex Mono, monospace">47µ</text>
+          <rect x="132" y="298" width="26" height="9" fill="#9AA1A8"/><rect x="128" y="306" width="34" height="26" rx="2" fill="#2A2D31"/>
+          <rect x="124" y="240" width="90" height="100" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="usbchip" tabindex="0" role="button" aria-label="Chip USB ATmega16U2 e cristal">
+          <rect x="180" y="96" width="36" height="36" rx="2" fill="#1B1D20"/>
+          <text x="198" y="117" text-anchor="middle" font-size="7.5" fill="#C9CED4" font-family="IBM Plex Mono, monospace">16U2</text>
+          <ellipse cx="160" cy="180" rx="26" ry="11" fill="#CFD4DA" stroke="#7F8891"/>
+          <text x="160" y="183" text-anchor="middle" font-size="7.5" fill="#26292D" font-family="IBM Plex Mono, monospace">16MHz</text>
+          <rect x="128" y="88" width="96" height="108" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="digital" tabindex="0" role="button" aria-label="Pinos digitais">
+          <g id="hdr-digital"></g>
+          <text x="440" y="96" text-anchor="middle" font-size="9" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" letter-spacing="1">DIGITAL (PWM ~)</text>
+          <rect x="172" y="22" width="352" height="80" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="leds" tabindex="0" role="button" aria-label="LEDs L, TX e RX">
+          <rect x="298" y="118" width="10" height="6" fill="#F2E3A6"/><rect x="316" y="118" width="10" height="6" fill="#F2E3A6"/><rect x="334" y="118" width="10" height="6" fill="#F2E3A6"/>
+          <text x="303" y="136" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="IBM Plex Mono, monospace">L</text>
+          <text x="321" y="136" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="IBM Plex Mono, monospace">TX</text>
+          <text x="339" y="136" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="IBM Plex Mono, monospace">RX</text>
+          <rect x="290" y="110" width="62" height="32" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="mcu" tabindex="0" role="button" aria-label="Microcontrolador ATmega328P">
+          <g id="mcu-pins"></g>
+          <rect x="230" y="270" width="250" height="58" rx="3" fill="#191B1E"/>
+          <circle cx="230" cy="299" r="7" fill="#1F6295"/>
+          <text x="355" y="304" text-anchor="middle" font-size="11" fill="#B9BEC4" font-family="IBM Plex Mono, monospace" letter-spacing="1">ATMEGA328P-PU</text>
+          <rect x="224" y="258" width="262" height="82" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="power" tabindex="0" role="button" aria-label="Pinos de alimentação">
+          <g id="hdr-power"></g>
+          <rect x="164" y="340" width="156" height="58" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="analog" tabindex="0" role="button" aria-label="Entradas analógicas">
+          <g id="hdr-analog"></g>
+          <rect x="334" y="340" width="122" height="58" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="on" tabindex="0" role="button" aria-label="LED ON">
+          <rect x="494" y="296" width="10" height="6" fill="#9BE39B"/>
+          <text x="499" y="316" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="IBM Plex Mono, monospace">ON</text>
+          <rect x="486" y="288" width="26" height="34" class="hit" rx="4"/>
+        </g>
+        <g class="hot" data-part="icsp" tabindex="0" role="button" aria-label="Conector ICSP">
+          <g id="hdr-icsp"></g>
+          <text x="508" y="258" text-anchor="middle" font-size="8" fill="#FFFFFF" font-family="IBM Plex Mono, monospace">ICSP</text>
+          <rect x="492" y="186" width="34" height="78" class="hit" rx="4"/>
+        </g>
+      </svg>
+      <figcaption>Desenho esquemático, fora de escala. Toque numa parte para ver o que ela faz.</figcaption>
+    </figure>
+    <div class="col">
+      <div class="readout" id="uno-info" aria-live="polite"></div>
+      <dl class="specs">
+        <dt>Cérebro</dt><dd>ATmega328P, 16 MHz, 8 bits</dd>
+        <dt>Lógica</dt><dd>5 V (HIGH = 5 V, LOW = 0 V)</dd>
+        <dt>Alimentação</dt><dd>USB 5 V, ou 7–12 V no conector redondo</dd>
+        <dt>Pinos</dt><dd>14 digitais (6 com PWM) e 6 analógicos</dd>
+        <dt>Corrente</dt><dd>20 mA por pino recomendado; 40 mA é o limite absoluto</dd>
+        <dt>Memória</dt><dd>32 KB para o programa, 2 KB de RAM, 1 KB de EEPROM</dd>
+      </dl>
+      <p class="note">O chip do seu Uno é do tipo DIP, encaixado num soquete. Se um dia ele queimar, dá para trocar só o chip em vez da placa inteira.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LEDs ============ -->
+<section class="part-sec" id="leds">
+  <div class="part-head"><span class="ref-big">D1–D10</span><h2>LEDs de 5 mm</h2></div>
+  <p class="sub">Vermelhos, amarelos e verdes difusos. LED é um diodo que acende: a corrente só passa num sentido, do ânodo (+) para o cátodo (−). Ligado ao contrário, ele simplesmente não acende.</p>
+  <div class="grid">
+    <figure class="fig" style="margin:0">
+      <svg viewBox="0 0 520 250" role="img" aria-label="Desenho de um LED com as pernas identificadas e o esquema de ligação">
+        <path d="M118 112 V58 a32 32 0 0 1 64 0 V112 Z" fill="#E5484D" opacity=".9"/>
+        <path d="M128 60 a22 22 0 0 1 18 -24" stroke="#FFFFFF" stroke-width="4" fill="none" opacity=".55" stroke-linecap="round"/>
+        <path d="M110 112 H186 V124 H110 Z" fill="#D23A40"/>
+        <line x1="138" y1="124" x2="138" y2="232" stroke="#9AA1A8" stroke-width="4"/>
+        <line x1="166" y1="124" x2="166" y2="200" stroke="#9AA1A8" stroke-width="4"/>
+        <text x="128" y="226" text-anchor="end" font-size="13" class="svg-ink" font-family="IBM Plex Sans, sans-serif">ânodo (+)</text>
+        <text x="128" y="242" text-anchor="end" font-size="11" class="svg-muted" font-family="IBM Plex Sans, sans-serif">perna longa</text>
+        <text x="176" y="196" font-size="13" class="svg-ink" font-family="IBM Plex Sans, sans-serif">cátodo (−)</text>
+        <text x="176" y="212" font-size="11" class="svg-muted" font-family="IBM Plex Sans, sans-serif">perna curta</text>
+        <line x1="190" y1="118" x2="214" y2="118" class="sch" stroke-width="1.2"/>
+        <text x="218" y="114" font-size="11" class="svg-muted" font-family="IBM Plex Sans, sans-serif">borda chata</text>
+        <text x="218" y="128" font-size="11" class="svg-muted" font-family="IBM Plex Sans, sans-serif">= lado do cátodo</text>
+
+        <text x="300" y="44" font-size="11" class="svg-muted" font-family="IBM Plex Mono, monospace" letter-spacing="1">LIGAÇÃO TÍPICA</text>
+        <text x="300" y="175" font-size="12" class="svg-ink" font-family="IBM Plex Mono, monospace" text-anchor="middle">D13</text>
+        <circle cx="300" cy="160" r="3" class="svg-ink"/>
+        <path d="M303 160 H330" class="sch"/>
+        <rect x="330" y="151" width="42" height="18" class="sch"/>
+        <text x="351" y="143" font-size="11" class="svg-ink" font-family="IBM Plex Mono, monospace" text-anchor="middle">220 Ω</text>
+        <path d="M372 160 H400" class="sch"/>
+        <path d="M400 146 V174 L424 160 Z" class="sch"/>
+        <path d="M424 146 V174" class="sch"/>
+        <path d="M410 140 l8 -12 M418 128 l-1 5 M418 128 l-5 2 M420 144 l8 -12 M428 132 l-1 5 M428 132 l-5 2" class="sch" stroke-width="1.5"/>
+        <path d="M424 160 H462 V184" class="sch"/>
+        <path d="M450 184 H474 M454 190 H470 M458 196 H466" class="sch"/>
+        <text x="462" y="214" font-size="12" class="svg-ink" font-family="IBM Plex Mono, monospace" text-anchor="middle">GND</text>
+        <text x="412" y="196" font-size="10" class="svg-muted" font-family="IBM Plex Sans, sans-serif" text-anchor="middle">LED</text>
+      </svg>
+      <figcaption>A corrente sai do pino, passa pelo resistor, entra pela perna longa e volta ao GND pela curta.</figcaption>
+    </figure>
+    <div class="col">
+      <div class="calc" aria-labelledby="ledcalc-t">
+        <h3 id="ledcalc-t">Qual resistor usar com o LED?</h3>
+        <div class="row">
+          <div class="field"><label for="lc-v">Fonte</label>
+            <select id="lc-v"><option value="5">5 V (Arduino Uno)</option><option value="3.3">3,3 V (ESP32)</option></select></div>
+          <div class="field"><label for="lc-c">Cor do LED</label>
+            <select id="lc-c"><option value="2.0">Vermelho (~2,0 V)</option><option value="2.1">Amarelo (~2,1 V)</option><option value="2.2">Verde (~2,2 V)</option><option value="3.1">Azul ou branco (~3,1 V)</option></select></div>
+        </div>
+        <div class="field"><label for="lc-i">Corrente desejada: <span id="lc-i-out" class="mono">15 mA</span></label>
+          <input type="range" id="lc-i" min="5" max="20" step="1" value="15"></div>
+        <div class="result">
+          <div><p class="label">Resistor comercial</p><p class="big" id="lc-r">220 Ω</p></div>
+          <div><p class="label">Cálculo exato</p><p class="mono" id="lc-exact">200 Ω</p></div>
+          <div><p class="label">Corrente real</p><p class="mono" id="lc-real">13,6 mA</p></div>
+        </div>
+        <p class="note" id="lc-formula">R = (5 V − 2,0 V) ÷ 0,015 A. Arredonda para o próximo valor comercial acima, que deixa o LED um pouco mais fraco e mais seguro.</p>
+      </div>
+      <p class="note">Tensões típicas de LEDs comuns de 5 mm, não medidas nos seus. Na dúvida, 220 Ω a 330 Ω com 5 V funciona para vermelho, amarelo e verde.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESISTORES ============ -->
+<section class="part-sec" id="resistores">
+  <div class="part-head"><span class="ref-big">R1–R30</span><h2>Resistores</h2></div>
+  <p class="sub">Limitam a corrente. São usados para proteger LEDs, dividir tensão e segurar um pino num nível definido (pull-up ou pull-down). Não têm polaridade: tanto faz o lado.</p>
+  <div class="grid">
+    <div class="calc" aria-labelledby="rc-t" style="min-width:0">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 id="rc-t">Leitor de código de cores</h3>
+        <div class="seg" role="group" aria-label="Número de faixas">
+          <button type="button" id="rc-4" aria-pressed="true">4 faixas</button><button type="button" id="rc-5" aria-pressed="false">5 faixas</button>
+        </div>
+      </div>
+      <svg id="rc-svg" viewBox="0 0 420 100" role="img" aria-label="Resistor com as faixas escolhidas"></svg>
+      <div class="row" id="rc-selects"></div>
+      <div class="result">
+        <div><p class="label">Valor</p><p class="big" id="rc-val">220 Ω</p></div>
+        <div><p class="label">Tolerância</p><p class="mono" id="rc-tol">±5%</p></div>
+        <div><p class="label">Escala no multímetro</p><p class="mono" id="rc-range">Ω 2000</p></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="prose">
+        <p>Pela foto há dois tipos na caixa <span class="est">estimado pela foto</span>:</p>
+        <ul class="clean">
+          <li><b>Corpo bege, 4 faixas:</b> filme de carbono, ±5% (última faixa dourada).</li>
+          <li><b>Corpo azul, 5 faixas:</b> filme metálico, ±1% (última faixa marrom). Mais precisos.</li>
+        </ul>
+        <p><b>O que temos, medido em 25/11/2026:</b></p>
+        <ul class="clean">
+          <li><span class="mono">220 Ω</span> ±1%: vermelho, vermelho, preto, preto, marrom (5 faixas). Mediu 0,20–0,21 kΩ. Uso: LED com brilho forte.</li>
+          <li><span class="mono">470 Ω</span> ±5%: amarelo, violeta, marrom, dourado. Mediu 0,45 kΩ. Uso: LED com brilho médio. O violeta parece azul.</li>
+          <li><span class="mono">1 kΩ</span> ±5%: marrom, preto, vermelho, dourado. Mediu 0,95–0,96 kΩ. Uso: LED mais fraco, sinais.</li>
+          <li><span class="mono">10 kΩ</span> ±5%: marrom, preto, laranja, dourado. Mediu 9,41–9,80 kΩ. Uso: pull-up de botões e sensores. Não serve para LED.</li>
+          <li><span class="mono">100 kΩ</span> ±5%: marrom, preto, amarelo, dourado. Na escala 20k o visor mostra “1” (passou do limite). <span class="est">medir na escala 200k</span> Uso: sensores e entradas de alta impedância. Não serve para LED.</li>
+        </ul>
+        <p class="note">Todas as leituras saíram de 4% a 6% abaixo do valor nominal. Um desvio igual em todos sugere que o multímetro lê um pouco baixo, talvez pela bateria de 9 V fraca <span class="est">hipótese</span>.</p>
+        <p>Leia começando pelo lado oposto à faixa dourada ou prateada. Faixas desbotadas confundem vermelho, laranja e marrom; quando não tiver certeza, meça com o multímetro na escala Ω.</p>
+      </div>
+      <p class="warnline"><b>A conferir:</b> na caixa há também uma peça preta pequena de plástico, perto do LED verde. Pode ser um transistor, um regulador ou um botão. Mande uma foto de perto para eu identificar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LCD ============ -->
+<section class="part-sec" id="lcd">
+  <div class="part-head"><span class="ref-big">DS1</span><h2>Display LCD 16×2</h2></div>
+  <p class="sub">Mostra texto: 2 linhas de 16 caracteres. Modelo HA-1602, com 14 pinos e sem luz de fundo, então o texto só é legível com luz ambiente. Fala com o Arduino por 6 fios de sinal.</p>
+  <p class="sub" style="margin-top:-12px">No verso há dois chips. Um é o HD44100, que acende os segmentos da tela. O outro está coberto pelo adesivo “QC PASS” e quase certamente é o HD44780, o controlador padrão que a biblioteca LiquidCrystal do Arduino usa <span class="est">inferido: o HD44100 trabalha em par com ele</span>.</p>
+  <div class="grid">
+    <figure class="fig" style="margin:0">
+      <svg id="lcd-svg" viewBox="0 0 520 250" role="img" aria-label="Desenho do display LCD 16x2 com os 14 pinos numerados">
+        <rect x="6" y="6" width="508" height="238" rx="8" fill="#2E7A3C" stroke="#1F5A2B"/>
+        <g id="lcd-pins"></g>
+        <rect x="30" y="64" width="460" height="160" rx="4" fill="#C5CACF" stroke="#8E979F"/>
+        <rect x="48" y="84" width="424" height="120" rx="3" fill="#A3BB6E"/>
+        <g id="lcd-cells"></g>
+      </svg>
+      <figcaption>Conector de 14 pinos, confirmado pela foto do verso: o pino 1 fica junto ao canto marcado “1” na placa.</figcaption>
+    </figure>
+    <div class="col">
+      <div class="prose">
+        <p><b>Por que os pinos 7 a 10 ficam soltos:</b> o LCD aceita dados em 8 bits (D0–D7) ou em 4 bits (só D4–D7). No modo de 4 bits você economiza 4 pinos do Arduino, e a biblioteca cuida do resto.</p>
+        <p><b>Sobre o pino 3 no GND:</b> ele controla o contraste. No GND o contraste fica no máximo, e às vezes aparecem só retângulos escuros. Se acontecer, troque o fio entre o pino 3 e o GND por um resistor de 1 kΩ: ele forma um divisor com os resistores internos do display (R1 a R5, no verso) e baixa o contraste. Não precisa de resistor em nenhum outro pino, porque este display não tem luz de fundo.</p>
+      </div>
+      <div class="code">
+        <button type="button" data-copy="lcd-code">Copiar</button>
+<pre id="lcd-code">#include &lt;LiquidCrystal.h&gt;
+
+// RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.print("Ola, bancada!");
+}
+
+void loop() {
+  lcd.setCursor(0, 1);
+  lcd.print(millis() / 1000);  // segundos ligados
+}</pre>
+      </div>
+    </div>
+  </div>
+  <div class="scroll" style="margin-top:24px">
+    <table id="lcd-table">
+      <thead><tr><th>Pino</th><th>Nome</th><th>O que faz</th><th>Seu bilhete</th><th>Ligar no Uno</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ MULTÍMETRO ============ -->
+<section class="part-sec" id="multimetro">
+  <div class="part-head"><span class="ref-big">Ferramenta</span><h2>Multímetro digital Thompson</h2></div>
+  <p class="sub">O instrumento que mostra o que está acontecendo no circuito: tensão (V), corrente (A), resistência (Ω) e continuidade. É o modelo clássico de 3½ dígitos: o máximo que o visor mostra é 1999, e um “1” sozinho à esquerda quer dizer que o valor passou da escala.</p>
+  <div class="grid">
+    <figure class="fig" style="margin:0">
+      <svg id="mm-svg" viewBox="0 0 360 490" role="img" aria-label="Multímetro com seletor clicável">
+        <rect x="10" y="8" width="340" height="474" rx="20" fill="#24272B" stroke="#111315"/>
+        <rect x="46" y="26" width="268" height="84" rx="6" fill="#121416"/>
+        <rect x="54" y="34" width="252" height="68" rx="3" fill="#B9C3A9"/>
+        <text id="mm-unit" x="64" y="52" font-size="11" fill="#2A3320" font-family="IBM Plex Mono, monospace">DC V</text>
+        <text id="mm-disp" x="294" y="90" text-anchor="end" font-size="44" font-weight="600" fill="#1F2817" font-family="IBM Plex Mono, monospace">5.02</text>
+        <g id="mm-labels"></g>
+        <circle cx="180" cy="262" r="80" fill="#17191B" stroke="#3A3E43" stroke-width="2"/>
+        <g class="pointer" id="mm-pointer">
+          <rect x="166" y="190" width="28" height="144" rx="14" fill="#2E3236" stroke="#4A4F55"/>
+          <path d="M180 196 l-7 13 h14 z" fill="#E6E8EA"/>
+        </g>
+        <g id="mm-jacks"></g>
+      </svg>
+      <figcaption>Toque numa posição do seletor. Os exemplos usam medições reais da bancada: o pino 5V do Uno, um resistor de 220 Ω e um LED.</figcaption>
+    </figure>
+    <div class="col">
+      <div class="readout" id="mm-info" aria-live="polite"></div>
+      <div class="prose">
+        <p><b>Onde vão as pontas:</b> preta sempre no <span class="mono">COM</span>. Vermelha no <span class="mono">VΩmA</span> para quase tudo; só vai no <span class="mono">10ADC</span> para correntes acima de 200 mA. Pela foto, as suas já estão no lugar certo.</p>
+        <p><b>Tensão</b> se mede em paralelo: encoste as pontas nos dois pontos, sem desmontar nada. <b>Corrente</b> se mede em série: abra o circuito e faça o multímetro virar parte do fio.</p>
+      </div>
+      <p class="warnline"><b>Cuidado:</b> a entrada 10ADC não tem fusível. E nunca encoste as pontas numa fonte com o seletor em corrente (DCA): é praticamente um curto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROTOBOARD ============ -->
+<section class="part-sec" id="protoboard">
+  <div class="part-head"><span class="ref-big">Ferramenta</span><h2>Protoboard de 400 pontos</h2></div>
+  <p class="sub">Placa para montar circuitos sem solda: você espeta os componentes e os fios nos furos. Por dentro, tiras de metal ligam certos furos entre si. Entender quais furos estão ligados é o segredo de tudo.</p>
+  <div class="grid">
+    <figure class="fig" style="margin:0">
+      <div class="scroll"><svg id="bb-svg" viewBox="0 0 500 290" role="img" aria-label="Protoboard; passe o dedo ou o mouse sobre um furo para ver os furos conectados a ele" style="min-width:420px"></svg></div>
+      <figcaption id="bb-cap" aria-live="polite"></figcaption>
+    </figure>
+    <div class="col">
+      <ul class="clean">
+        <li><b>Fileiras numeradas (1–30):</b> os 5 furos a–e de cada número estão ligados entre si. Os 5 furos f–j também, mas separados dos a–e.</li>
+        <li><b>Vão central:</b> separa as duas metades. É onde se encaixam chips no formato DIP, cada fileira de pernas de um lado.</li>
+        <li><b>Trilhos laterais + e −:</b> correm ao longo da placa. Ligue o 5V do Arduino no + e o GND no −, e todo o circuito tem energia por perto.</li>
+        <li><b>Os dois lados não se ligam sozinhos:</b> se quiser energia nos dois trilhos, use dois fios ligando + com + e − com −.</li>
+      </ul>
+      <p class="note">Em placas de 400 pontos os trilhos costumam ser contínuos de ponta a ponta. Para ter certeza na sua, use o multímetro na continuidade entre o primeiro e o último furo do trilho.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ESP32 ============ -->
+<section class="part-sec" id="esp32">
+  <div class="part-head"><span class="ref-big">U2</span><h2>ESP32 e kit novo</h2></div>
+  <p class="sub">Comprado e a caminho. Quando chegar, tire fotos que eu documento o modelo exato da placa e cada peça do kit aqui, do mesmo jeito.</p>
+  <div class="soonbox">
+    <p>O ESP32 é um primo mais forte do Arduino, com Wi-Fi e Bluetooth embutidos. Programa-se na mesma Arduino IDE. A diferença que mais importa no começo: <b>ele trabalha com 3,3 V</b>, então não se liga 5 V direto nos pinos dele.</p>
+    <div class="scroll">
+      <div class="cmp" style="min-width:440px">
+        <div class="h"></div><div class="h">Arduino Uno</div><div class="h">ESP32 (típico)</div>
+        <div>Tensão nos pinos</div><div>5 V</div><div>3,3 V</div>
+        <div>Processador</div><div>16 MHz, 8 bits</div><div>até 240 MHz, 32 bits, 2 núcleos</div>
+        <div>RAM</div><div>2 KB</div><div>~520 KB</div>
+        <div>Wi-Fi e Bluetooth</div><div>não</div><div>sim</div>
+        <div>Leitura analógica</div><div>0–1023 (10 bits)</div><div>0–4095 (12 bits)</div>
+      </div>
+    </div>
+    <p class="note">Valores típicos da família ESP32; confirmar quando soubermos a placa exata.</p>
+  </div>
+</section>
+
+<!-- ============ MONTAGENS ============ -->
+<section class="part-sec" id="montagens">
+  <div class="part-head"><span class="ref-big">Guia</span><h2>Como ligar, fio por fio</h2></div>
+  <p class="sub">Siga um passo de cada vez com o botão Próximo: o desenho acrescenta só a peça daquele passo, destacada. Monte sempre com o USB desconectado. A cor dos fios não muda nada na eletricidade; usamos preto para GND e vermelho para 5V só para não confundir.</p>
+  <p class="warnline"><b>Fios (jumpers):</b> você ainda não tem. A montagem 1 funciona sem nenhum fio. A 2 precisa de 2 fios e a 3 de 10, do tipo macho-macho (pino nas duas pontas).</p>
+
+  <div class="mont" data-mont>
+    <figure class="fig" style="margin:0">
+      <svg viewBox="0 0 520 300" role="img" aria-label="LED e resistor espetados direto nos furos 13 e GND do Arduino">
+        <rect x="0" y="170" width="520" height="130" fill="#1F6295"/>
+        <rect x="100" y="140" width="380" height="50" rx="3" fill="#17191C"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="15" fill="#FFFFFF" text-anchor="middle">
+          <rect x="120" y="155" width="20" height="20" fill="#3E444B"/><text x="130" y="215">AREF</text>
+          <rect x="180" y="155" width="20" height="20" fill="#3E444B"/><text x="190" y="215" font-weight="600">GND</text>
+          <rect x="240" y="155" width="20" height="20" fill="#3E444B"/><text x="250" y="215" font-weight="600">13</text>
+          <rect x="300" y="155" width="20" height="20" fill="#3E444B"/><text x="310" y="215">12</text>
+          <rect x="360" y="155" width="20" height="20" fill="#3E444B"/><text x="370" y="215">~11</text>
+          <rect x="420" y="155" width="20" height="20" fill="#3E444B"/><text x="430" y="215">~10</text>
+        </g>
+        <text x="260" y="270" text-anchor="middle" font-size="12" fill="#CFE0EE" font-family="IBM Plex Mono, monospace">borda de cima do Arduino (fileira DIGITAL), vista de perto</text>
+        <g data-s="2">
+          <path d="M190 165 V20 H308 V124" fill="none" stroke="#9AA1A8" stroke-width="3.5" stroke-linejoin="round"/>
+          <rect x="178" y="60" width="24" height="64" rx="10" fill="#E0C79C" stroke="#B89C6E"/>
+          <rect x="178" y="70" width="24" height="6" fill="#7B4A2A"/><rect x="178" y="82" width="24" height="6" fill="#1E1E1E"/><rect x="178" y="94" width="24" height="6" fill="#D0312D"/><rect x="178" y="110" width="24" height="6" fill="#C9A227"/>
+          <text x="170" y="96" text-anchor="end" font-size="13" class="svg-ink" font-family="IBM Plex Mono, monospace">1 kΩ</text>
+        </g>
+        <g data-s="3">
+          <line x1="250" y1="117" x2="250" y2="165" stroke="#9AA1A8" stroke-width="3.5"/>
+          <path d="M278 117 V128 H302" fill="none" stroke="#9AA1A8" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M246 110 V72 a18 18 0 0 1 36 0 V110 Z" fill="#E5484D"/>
+          <rect x="242" y="110" width="46" height="7" fill="#C93A40"/>
+          <text x="330" y="58" font-size="13" class="svg-ink" font-family="IBM Plex Sans, sans-serif">perna longa (+) no 13</text>
+          <text x="330" y="76" font-size="13" class="svg-ink" font-family="IBM Plex Sans, sans-serif">perna curta (−) dobrada</text>
+        </g>
+        <g data-s="4">
+          <circle cx="306" cy="127" r="9" fill="none" stroke="#E39A5F" stroke-width="3"/>
+          <text x="322" y="131" font-size="13" class="svg-ink" font-family="IBM Plex Sans, sans-serif">torça as duas pernas aqui</text>
+        </g>
+        <g data-s="5">
+          <circle cx="264" cy="82" r="34" fill="#E5484D" opacity=".28"/>
+          <text x="330" y="104" font-size="15" font-weight="600" class="svg-ink" font-family="IBM Plex Sans, sans-serif">pisca junto com o L</text>
+        </g>
+      </svg>
+      <figcaption>O resistor fica no GND e o LED no 13. A ordem das peças no caminho não importa: o resistor protege o LED dos dois lados.</figcaption>
+    </figure>
+    <div>
+      <h3>Montagem 1: LED sem fios</h3>
+      <p class="needs">Peças: 1 LED vermelho e 1 resistor de 1 kΩ (marrom, preto, vermelho, dourado). O LED acende um pouco mais fraco que com 220 Ω, mas bem visível. Não use o de 10 kΩ: com ele o LED quase não acende. Código: o pisca_led que já está no Uno.</p>
+      <ol class="mlist">
+        <li tabindex="0">Desconecte o USB do Arduino.</li>
+        <li tabindex="0">Espete uma perna do resistor no furo <b>GND</b> da fileira de cima, ao lado do 13. Dobre a outra perna para cima e para a direita, como no desenho.</li>
+        <li tabindex="0">Espete a <b>perna longa</b> do LED no furo <b>13</b>. A perna curta fica no ar, dobrada para a direita.</li>
+        <li tabindex="0">Torça a perna curta do LED com a perna livre do resistor. Confira que nenhuma das duas encosta na perna longa do LED.</li>
+        <li tabindex="0">Conecte o USB. O LED pisca junto com o L da placa, porque o programa já pisca o pino 13.</li>
+      </ol>
+      <div class="mnav"><button type="button" data-prev>← Anterior</button><button type="button" class="primary" data-next>Próximo →</button><span class="mcount"></span></div>
+    </div>
+  </div>
+
+  <div class="mont" data-mont>
+    <figure class="fig" style="margin:0">
+      <svg viewBox="0 0 560 430" role="img" aria-label="Protoboard com LED, resistor e dois fios até o Arduino">
+        <rect x="20" y="16" width="520" height="296" rx="6" fill="#F3F1EC" stroke="#CFCBC2"/>
+        <rect x="40" y="131" width="480" height="18" fill="#E4E0D7"/>
+        <line x1="44" y1="260" x2="516" y2="260" stroke="#3B82C4" stroke-width="2"/>
+        <line x1="44" y1="304" x2="516" y2="304" stroke="#E0475A" stroke-width="2"/>
+        <g id="bb2-holes"></g>
+        <text x="32" y="276" text-anchor="middle" font-size="16" font-weight="700" fill="#3B82C4" font-family="IBM Plex Mono, monospace">−</text>
+        <text x="32" y="297" text-anchor="middle" font-size="16" font-weight="700" fill="#E0475A" font-family="IBM Plex Mono, monospace">+</text>
+        <rect x="60" y="340" width="480" height="90" fill="#1F6295"/>
+        <rect x="112" y="334" width="300" height="24" rx="2" fill="#17191C"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="12" fill="#FFFFFF" text-anchor="middle">
+          <rect x="124" y="340" width="12" height="12" fill="#3E444B"/><text x="130" y="378">AREF</text>
+          <rect x="160" y="340" width="12" height="12" fill="#3E444B"/><text x="166" y="378" font-weight="600">GND</text>
+          <rect x="196" y="340" width="12" height="12" fill="#3E444B"/><text x="202" y="378" font-weight="600">13</text>
+          <rect x="232" y="340" width="12" height="12" fill="#3E444B"/><text x="238" y="378">12</text>
+          <rect x="268" y="340" width="12" height="12" fill="#3E444B"/><text x="274" y="378">~11</text>
+          <rect x="304" y="340" width="12" height="12" fill="#3E444B"/><text x="310" y="378">~10</text>
+          <rect x="340" y="340" width="12" height="12" fill="#3E444B"/><text x="346" y="378">~9</text>
+          <rect x="376" y="340" width="12" height="12" fill="#3E444B"/><text x="382" y="378">8</text>
+        </g>
+        <text x="300" y="412" text-anchor="middle" font-size="11" fill="#CFE0EE" font-family="IBM Plex Mono, monospace">borda de cima do Arduino</text>
+        <g data-s="2">
+          <path d="M202 346 C202 300 266 296 266 244" fill="none" stroke="#F2C230" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="266" cy="240" r="5" fill="#C99A12"/>
+        </g>
+        <g data-s="3">
+          <circle cx="266" cy="180" r="4" fill="#9AA1A8"/><circle cx="290" cy="180" r="4" fill="#9AA1A8"/>
+          <circle cx="278" cy="168" r="15" fill="#E5484D" stroke="#B22D33"/>
+          <path d="M290 156 V180" stroke="#B22D33" stroke-width="2"/>
+          <text x="266" y="145" text-anchor="middle" font-size="13" font-weight="700" fill="#16212B" font-family="IBM Plex Mono, monospace">+</text>
+          <text x="290" y="145" text-anchor="middle" font-size="13" font-weight="700" fill="#16212B" font-family="IBM Plex Mono, monospace">−</text>
+        </g>
+        <g data-s="4">
+          <line x1="290" y1="240" x2="338" y2="272" stroke="#9AA1A8" stroke-width="3"/>
+          <g transform="translate(314 256) rotate(33.7)">
+            <rect x="-18" y="-7" width="36" height="14" rx="6" fill="#E0C79C" stroke="#B89C6E"/>
+            <rect x="-12" y="-7" width="3.5" height="14" fill="#7B4A2A"/><rect x="-6" y="-7" width="3.5" height="14" fill="#1E1E1E"/><rect x="0" y="-7" width="3.5" height="14" fill="#D0312D"/><rect x="10" y="-7" width="3.5" height="14" fill="#C9A227"/>
+          </g>
+        </g>
+        <g data-s="5">
+          <path d="M98 272 C98 318 166 306 166 346" fill="none" stroke="#2A2A2A" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="98" cy="272" r="5" fill="#111111"/>
+        </g>
+        <g data-s="6">
+          <circle cx="278" cy="168" r="27" fill="#E5484D" opacity=".3"/>
+        </g>
+      </svg>
+      <figcaption>Fileiras de 1 a 20 da sua protoboard, com a metade a–e embaixo. O trilho azul (−) é o que fica ao lado da coluna a.</figcaption>
+    </figure>
+    <div>
+      <h3>Montagem 2: LED na protoboard</h3>
+      <p class="needs">Peças: 1 LED, 1 resistor de 1 kΩ, 2 fios. É a mesma ligação da montagem 1, organizada do jeito que todos os próximos projetos vão usar. Código: o mesmo pisca_led.</p>
+      <ol class="mlist">
+        <li tabindex="0">Desconecte o USB do Arduino.</li>
+        <li tabindex="0">Fio amarelo: do furo <b>13</b> do Arduino até o furo <b>a10</b> da protoboard (fileira 10, coluna a).</li>
+        <li tabindex="0">LED: <b>perna longa no d10</b> e perna curta no <b>d11</b>. A longa fica na mesma fileira do fio amarelo.</li>
+        <li tabindex="0">Resistor: uma perna no <b>a11</b> (mesma fileira da perna curta) e a outra em qualquer furo do <b>trilho azul (−)</b> logo abaixo.</li>
+        <li tabindex="0">Fio preto: de um furo do <b>trilho azul (−)</b> até o furo <b>GND</b> do Arduino, ao lado do 13.</li>
+        <li tabindex="0">Conecte o USB. O LED pisca. Se não piscar, vire o LED: a perna longa precisa estar na fileira do fio amarelo.</li>
+      </ol>
+      <div class="mnav"><button type="button" data-prev>← Anterior</button><button type="button" class="primary" data-next>Próximo →</button><span class="mcount"></span></div>
+    </div>
+  </div>
+
+  <div class="mont" data-mont>
+    <figure class="fig" style="margin:0">
+      <svg id="lcd-wiring" viewBox="0 0 560 440" role="img" aria-label="Mapa de ligação dos 14 pinos do LCD aos pinos do Arduino"></svg>
+      <figcaption>Mapa de ligação. No desenho o conector está do lado direito só para os fios não cruzarem a tela; no seu display ele fica numa das bordas compridas. Vire a placa: no verso está impresso 1 numa ponta do conector e 14 na outra.</figcaption>
+    </figure>
+    <div>
+      <h3>Montagem 3: display LCD</h3>
+      <p class="needs">Peças: o LCD e 10 fios. Não precisa de protoboard: o Uno tem exatamente os 3 GND necessários. O conector do display parece ser do tipo com furos, então fios macho-macho servem nas duas pontas <span class="est">pela foto</span>. Código: lcd_ola, na pasta projetos.</p>
+      <ol class="mlist">
+        <li tabindex="0">Desconecte o USB. Vire o display e ache o <b>1</b> e o <b>14</b> impressos ao lado do conector.</li>
+        <li tabindex="0">Fio preto: LCD <b>1</b> → <b>GND</b> da fileira POWER (borda de baixo do Uno).</li>
+        <li tabindex="0">Fio vermelho: LCD <b>2</b> → <b>5V</b> da fileira POWER.</li>
+        <li tabindex="0">Fio preto: LCD <b>3</b> → o <b>outro GND</b> da fileira POWER. Isso deixa o contraste no máximo.</li>
+        <li tabindex="0">Fio azul: LCD <b>4</b> → pino <b>12</b> (fileira DIGITAL, borda de cima).</li>
+        <li tabindex="0">Fio preto: LCD <b>5</b> → <b>GND</b> da fileira DIGITAL, ao lado do 13.</li>
+        <li tabindex="0">Fio roxo: LCD <b>6</b> → pino <b>11</b>.</li>
+        <li tabindex="0">LCD <b>7, 8, 9 e 10</b> ficam livres.</li>
+        <li tabindex="0">Quatro fios: LCD <b>11 → 5</b>, <b>12 → 4</b>, <b>13 → 3</b>, <b>14 → 2</b>.</li>
+        <li tabindex="0">Confira os 10 fios contra o desenho e conecte o USB. Me avise que eu envio o código; se aparecerem só retângulos escuros, ajustamos o contraste.</li>
+      </ol>
+      <div class="mnav"><button type="button" data-prev>← Anterior</button><button type="button" class="primary" data-next>Próximo →</button><span class="mcount"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXPERIMENTOS ============ -->
+<section class="part-sec" id="experimentos">
+  <div class="part-head"><span class="ref-big">Roteiro</span><h2>Primeiros experimentos com o que já temos</h2></div>
+  <p class="sub">Cada passo usa o anterior. Dá para fazer tudo com as peças desta página.</p>
+  <ol class="steps">
+    <li><div><h3>Medir o 5V do Arduino</h3><p>Ligue o Uno no USB. Multímetro em DCV 20, preta no GND, vermelha no pino 5V. Deve mostrar algo perto de 5,0. Repita no 3.3V.</p></div></li>
+    <li><div><h3>Identificar os resistores</h3><p>Com o Uno desligado, meça alguns resistores na escala Ω 2000 ou 20k e confira com o leitor de cores acima. Separe um de 1 kΩ para o LED.</p></div></li>
+    <li><div><h3>Piscar um LED na protoboard</h3><p>Siga a montagem 1 (sem fios) ou a 2 (na protoboard), na seção Como ligar. O código abaixo já está no Uno, na pasta projetos/pisca_led.</p>
+      <div class="code" style="margin-top:10px"><button type="button" data-copy="blink-code">Copiar</button>
+<pre id="blink-code">void setup() {
+  pinMode(13, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(13, HIGH);  // acende
+  delay(500);
+  digitalWrite(13, LOW);   // apaga
+  delay(500);
+}</pre></div></div></li>
+    <li><div><h3>Escrever no LCD</h3><p>Siga a montagem 3 na seção Como ligar e envie o código projetos/lcd_ola. Se aparecerem só retângulos, o problema é o contraste do pino 3.</p></div></li>
+  </ol>
+</section>
+
+<footer>Fotos da bancada de 25/11/2026. Itens marcados como estimado ou inferido vêm da análise das fotos e ainda precisam ser confirmados com o multímetro ou uma foto mais de perto.</footer>
+</div>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+const MONO="IBM Plex Mono, monospace";
+const nf=(v,d)=>v.toLocaleString("pt-BR",{maximumFractionDigits:d});
+
+/* ---------- Arduino ---------- */
+function header(gid,x0,y,labels,pitch,labelSide){
+  const g=document.getElementById(gid);
+  labels.forEach((lab,i)=>{
+    const x=x0+i*pitch;
+    el("rect",{x:x,y:y,width:pitch-1,height:16,fill:"#17191C"},g);
+    el("rect",{x:x+(pitch-1)/2-3,y:y+5,width:6,height:6,fill:"#3E444B"},g);
+    if(!lab)return;
+    const cx=x+(pitch-1)/2;
+    if(labelSide==="below"){
+      el("text",{x:cx,y:y+22,"font-size":8.5,fill:"#FFFFFF","font-family":MONO,"dominant-baseline":"middle",transform:`rotate(90 ${cx} ${y+22})`},g,lab);
+    }else{
+      el("text",{x:cx,y:y-6,"font-size":8.5,fill:"#FFFFFF","font-family":MONO,"dominant-baseline":"middle",transform:`rotate(-90 ${cx} ${y-6})`},g,lab);
+    }
+  });
+}
+header("hdr-digital",178,26,["SCL","SDA","AREF","GND","13","12","~11","~10","~9","8"],18,"below");
+header("hdr-digital",372,26,["7","~6","~5","4","~3","2","TX1","RX0"],18,"below");
+header("hdr-power",170,376,["","IOREF","RESET","3.3V","5V","GND","GND","Vin"],18,"above");
+header("hdr-analog",340,376,["A0","A1","A2","A3","A4","A5"],18,"above");
+(function(){const g=document.getElementById("hdr-icsp");for(let r=0;r<3;r++)for(let c=0;c<2;c++){el("rect",{x:497+c*12,y:196+r*16,width:11,height:11,fill:"#17191C"},g);el("rect",{x:500+c*12,y:199+r*16,width:5,height:5,fill:"#C8A64B"},g);}})();
+(function(){const g=document.getElementById("mcu-pins");for(let i=0;i<14;i++){const x=240+i*17.4;el("rect",{x:x,y:262,width:7,height:9,fill:"#B9BEC4"},g);el("rect",{x:x,y:327,width:7,height:9,fill:"#B9BEC4"},g);}})();
+
+const UNO={
+  digital:["Pinos digitais 0 a 13","Cada pino pode ser saída (acender um LED: HIGH = 5 V, LOW = 0 V) ou entrada (ler se um botão está apertado). Os marcados com ~ (3, 5, 6, 9, 10 e 11) fazem PWM: ligam e desligam muito rápido para simular valores intermediários, como o brilho de um LED.","Evite os pinos 0 e 1 (RX/TX): são a conversa com o computador e atrapalham o envio do código. GND aqui em cima é igual aos GND de baixo."],
+  power:["Pinos de alimentação","5V e 3.3V fornecem energia para o seu circuito. GND é o negativo, o ponto de referência comum a tudo. Vin dá acesso à tensão da fonte externa. RESET, ligado ao GND, reinicia a placa. IOREF avisa os shields que a lógica é de 5 V.","O 3.3V aguenta pouca corrente (~50 mA). Nunca ligue 5V em GND."],
+  analog:["Entradas analógicas A0 a A5","Leem uma tensão entre 0 e 5 V e devolvem um número de 0 a 1023 com analogRead(). Servem para potenciômetros, sensores de luz (LDR), de temperatura etc.","Também funcionam como pinos digitais comuns. A4 e A5 são os mesmos sinais SDA e SCL do I²C (usado por muitos sensores e displays)."],
+  usb:["Porta USB (tipo B)","Liga a placa ao computador. Por ela vem a energia (5 V) e por ela o código é enviado. Também é por onde o Serial Monitor da IDE mostra mensagens do seu programa.","Há um fusível rearmável de 500 mA protegendo a porta USB do computador."],
+  dc:["Conector de alimentação","Para usar o Arduino longe do computador: fonte de 7 a 12 V, com o positivo no centro (plugue P4, 5,5 × 2,1 mm). O regulador da placa converte para 5 V.","Bateria de 9 V também funciona, mas dura pouco."],
+  reset:["Botão RESET","Reinicia o seu programa do começo, como desligar e ligar a placa. Não apaga o código gravado.","Útil quando o programa trava ou quando você quer ver o setup() rodar de novo."],
+  mcu:["ATmega328P, o cérebro","É o microcontrolador que roda o seu código: 16 MHz, 32 KB para o programa e 2 KB de RAM. Todos os pinos das bordas estão ligados nele.","No seu Uno ele está num soquete e pode ser trocado se queimar."],
+  usbchip:["ATmega16U2 e cristal","Um segundo chip, só para traduzir USB em serial: é a ponte entre o computador e o ATmega328P. O cristal ao lado dá o ritmo do relógio dele.","Você não programa este chip; ele trabalha sozinho."],
+  reg:["Regulador e capacitores","Recebem a tensão da fonte externa e entregam 5 V estáveis para a placa. Os dois capacitores de 47 µF filtram oscilações.","Se esquentar muito, a fonte externa está alta demais ou o circuito puxa corrente demais."],
+  leds:["LEDs L, TX e RX","L está ligado ao pino 13: é ele que pisca no exemplo Blink, sem montar nada. TX e RX piscam quando há troca de dados com o computador, como durante o envio do código.","Se L pisca ao ligar a placa, o bootloader está funcionando."],
+  on:["LED ON","Aceso quer dizer que a placa está energizada.","Se apagar sozinho, desconecte tudo: pode ser um curto no seu circuito."],
+  icsp:["Conector ICSP","Permite gravar o chip diretamente, sem USB. Serve para regravar o bootloader ou usar o Uno como gravador de outros chips.","Raramente usado no começo. Há outro ICSP perto do USB, que é do chip 16U2."]
+};
+const unoInfo=document.getElementById("uno-info");
+const unoParts=[...document.querySelectorAll("#uno-svg .hot")];
+function selUno(k){
+  unoParts.forEach(p=>{const on=p.dataset.part===k;p.classList.toggle("on",on);p.setAttribute("aria-pressed",on)});
+  const [t,d,tip]=UNO[k];
+  unoInfo.innerHTML=`<p class="label">Parte selecionada</p><h3></h3><p></p><p class="tip"></p>`;
+  unoInfo.querySelector("h3").textContent=t;unoInfo.querySelector("p:nth-of-type(2)").textContent=d;unoInfo.querySelector(".tip").textContent=tip;
+}
+unoParts.forEach(p=>{
+  p.addEventListener("click",()=>selUno(p.dataset.part));
+  p.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selUno(p.dataset.part)}});
+});
+selUno("digital");
+
+/* ---------- LED calc ---------- */
+const E12=[10,12,15,18,22,27,33,39,47,56,68,82];
+function e12up(r){if(r<=0)return 10;let dec=Math.pow(10,Math.floor(Math.log10(r))-1);for(let k=0;k<3;k++){for(const v of E12){const c=v*dec;if(c>=r-1e-9)return Math.round(c*100)/100;}dec*=10;}return r;}
+function fmtOhm(v){if(v>=1e6)return nf(v/1e6,2)+" MΩ";if(v>=1e3)return nf(v/1e3,2)+" kΩ";return nf(v,2)+" Ω";}
+const lcV=document.getElementById("lc-v"),lcC=document.getElementById("lc-c"),lcI=document.getElementById("lc-i");
+function ledCalc(){
+  const V=parseFloat(lcV.value),Vf=parseFloat(lcC.value),I=parseInt(lcI.value,10);
+  document.getElementById("lc-i-out").textContent=I+" mA";
+  const exact=(V-Vf)/(I/1000);
+  if(exact<=0){document.getElementById("lc-r").textContent="—";document.getElementById("lc-exact").textContent="fonte baixa demais";document.getElementById("lc-real").textContent="—";
+    document.getElementById("lc-formula").textContent="A tensão da fonte é menor que a do LED: ele não acende direito nesta combinação.";return;}
+  const R=e12up(exact),real=(V-Vf)/R*1000;
+  document.getElementById("lc-r").textContent=fmtOhm(R);
+  document.getElementById("lc-exact").textContent=fmtOhm(Math.round(exact));
+  document.getElementById("lc-real").textContent=nf(real,1)+" mA";
+  document.getElementById("lc-formula").textContent=`R = (${nf(V,1)} V − ${nf(Vf,1)} V) ÷ ${nf(I/1000,3)} A. Arredonda para o próximo valor comercial acima, que deixa o LED um pouco mais fraco e mais seguro.`;
+}
+[lcV,lcC,lcI].forEach(x=>x.addEventListener("input",ledCalc));ledCalc();
+
+/* ---------- Resistor decoder ---------- */
+const COLORS=[
+ {n:"Preto",c:"#1E1E1E",d:0,m:1},{n:"Marrom",c:"#7B4A2A",d:1,m:10,t:1},{n:"Vermelho",c:"#D0312D",d:2,m:100,t:2},
+ {n:"Laranja",c:"#EE7B22",d:3,m:1e3},{n:"Amarelo",c:"#F2CF1F",d:4,m:1e4},{n:"Verde",c:"#2E9E4F",d:5,m:1e5,t:.5},
+ {n:"Azul",c:"#2C64C8",d:6,m:1e6,t:.25},{n:"Violeta",c:"#7D4FB5",d:7,t:.1},{n:"Cinza",c:"#8E949A",d:8,t:.05},
+ {n:"Branco",c:"#F4F4F2",d:9},{n:"Dourado",c:"#C9A227",m:.1,t:5},{n:"Prateado",c:"#B9BFC6",m:.01,t:10}
+];
+const rcState={bands:4,v4:["Vermelho","Vermelho","Marrom","Dourado"],v5:["Marrom","Preto","Preto","Marrom","Marrom"]};
+const byName=Object.fromEntries(COLORS.map(c=>[c.n,c]));
+function rcRender(){
+  const n=rcState.bands,vals=n===4?rcState.v4:rcState.v5;
+  const roles=n===4?["1º dígito","2º dígito","Multiplicador","Tolerância"]:["1º dígito","2º dígito","3º dígito","Multiplicador","Tolerância"];
+  const box=document.getElementById("rc-selects");box.innerHTML="";
+  roles.forEach((role,i)=>{
+    const isDigit=i<n-2,isMult=i===n-2;
+    const opts=COLORS.filter(c=>isDigit?c.d!=null&&!(i===0&&c.d===0):isMult?c.m!=null:c.t!=null);
+    const f=document.createElement("div");f.className="field";
+    const id="rc-b"+n+"-"+i;
+    f.innerHTML=`<label for="${id}">${role}</label>`;
+    const s=document.createElement("select");s.id=id;
+    opts.forEach(o=>{const op=document.createElement("option");op.value=o.n;op.textContent=o.n;s.appendChild(op);});
+    s.value=vals[i];s.addEventListener("input",()=>{vals[i]=s.value;rcRender();});
+    f.appendChild(s);box.appendChild(f);
+  });
+  const svg=document.getElementById("rc-svg");svg.innerHTML="";
+  el("line",{x1:8,y1:50,x2:412,y2:50,stroke:"#9AA1A8","stroke-width":4,"stroke-linecap":"round"},svg);
+  el("rect",{x:105,y:24,width:210,height:52,rx:22,fill:n===4?"#E0C79C":"#8CB8DA",stroke:n===4?"#B89C6E":"#5E8DB3"},svg);
+  const xs=n===4?[135,165,195,272]:[130,156,182,208,276];
+  vals.forEach((v,i)=>el("rect",{x:xs[i],y:24,width:13,height:52,fill:byName[v].c,stroke:byName[v].n==="Branco"?"#BFC3C7":"none"},svg));
+  let digits=vals.slice(0,n-2).map(v=>byName[v].d).join("");
+  const val=parseInt(digits,10)*byName[vals[n-2]].m;
+  document.getElementById("rc-val").textContent=fmtOhm(Math.round(val*100)/100);
+  document.getElementById("rc-tol").textContent="±"+nf(byName[vals[n-1]].t,2)+"%";
+  const ranges=[[200,"Ω 200"],[2000,"Ω 2000"],[2e4,"Ω 20k"],[2e5,"Ω 200k"],[2e6,"Ω 2000k"]];
+  const rg=ranges.find(r=>val<r[0]*0.95);
+  document.getElementById("rc-range").textContent=rg?rg[1]:"acima de 2 MΩ";
+  document.getElementById("rc-4").setAttribute("aria-pressed",n===4);document.getElementById("rc-5").setAttribute("aria-pressed",n===5);
+}
+document.getElementById("rc-4").addEventListener("click",()=>{rcState.bands=4;rcRender();});
+document.getElementById("rc-5").addEventListener("click",()=>{rcState.bands=5;rcRender();});
+rcRender();
+
+/* ---------- LCD ---------- */
+const LCD=[
+ [1,"VSS","Terra (negativo)","GND","GND"],
+ [2,"VDD","Alimentação +5 V","5V","5V"],
+ [3,"V0","Contraste","GND (contraste PWM)","GND, ou meio de um potenciômetro 10 kΩ"],
+ [4,"RS","Diz se o byte é comando ou texto","porta lógica digital","pino 12"],
+ [5,"RW","Ler ou escrever; no GND = só escrever","GND","GND"],
+ [6,"E","Enable: o pulso que confirma cada dado","porta lógica digital","pino 11"],
+ [7,"D0","Dado (só no modo 8 bits)","nada conectado","não ligar"],
+ [8,"D1","Dado (só no modo 8 bits)","nada conectado","não ligar"],
+ [9,"D2","Dado (só no modo 8 bits)","nada conectado","não ligar"],
+ [10,"D3","Dado (só no modo 8 bits)","nada conectado","não ligar"],
+ [11,"D4","Dado","porta digital","pino 5"],
+ [12,"D5","Dado","porta digital","pino 4"],
+ [13,"D6","Dado","porta digital","pino 3"],
+ [14,"D7","Dado","porta digital","pino 2"]
+];
+const tb=document.querySelector("#lcd-table tbody");
+LCD.forEach(r=>{const tr=document.createElement("tr");tr.dataset.pin=r[0];if(r[4]==="não ligar")tr.className="off";
+  r.forEach((c,i)=>{const td=document.createElement("td");if(i===0)td.className="n";if(i===1)td.className="mono";td.textContent=c;tr.appendChild(td);});tb.appendChild(tr);});
+const lp=document.getElementById("lcd-pins");
+const pinColor=p=>p<=3||p===5?"#C8A64B":(p>=7&&p<=10?"#6E7680":"#C8A64B");
+for(let p=1;p<=14;p++){
+  const x=40+(p-1)*18;
+  const g=el("g",{class:"hot","data-pin":p,tabindex:0,role:"button","aria-label":"Pino "+p},lp);
+  el("rect",{x:x,y:14,width:13,height:13,fill:"#1C1F22",stroke:p>14?"#C8A64B":"none","stroke-dasharray":p>14?"2 2":"none"},g);
+  el("circle",{cx:x+6.5,cy:20.5,r:3.2,fill:p>14?"#1C1F22":pinColor(p)},g);
+  el("text",{x:x+6.5,y:44,"text-anchor":"middle","font-size":9,fill:"#E8F0E4","font-family":MONO},g,p);
+  el("rect",{x:x-2,y:10,width:17,height:40,class:"hit",rx:3},g);
+}
+el("text",{x:370,y:28,"font-size":9,fill:"#E8F0E4","font-family":MONO,"letter-spacing":1},lp,"← pino 1 à esquerda");
+const cells=document.getElementById("lcd-cells");
+const lines=["Ola, bancada!   ","Tempo: 42 s     "];
+lines.forEach((line,r)=>{for(let c=0;c<16;c++){const x=60+c*25,y=98+r*50;
+  el("rect",{x:x,y:y,width:22,height:38,fill:"#96AE62"},cells);
+  const ch=line[c];if(ch&&ch!==" ")el("text",{x:x+11,y:y+28,"text-anchor":"middle","font-size":24,"font-weight":600,fill:"#26331A","font-family":MONO},cells,ch);}});
+function litPin(p,on){document.querySelectorAll(`#lcd-table tr[data-pin="${p}"]`).forEach(t=>t.classList.toggle("lit",on));
+  const g=lp.querySelector(`[data-pin="${p}"]`);if(g)g.classList.toggle("on",on);}
+lp.querySelectorAll(".hot").forEach(g=>{const p=g.dataset.pin;
+  ["pointerenter","focus"].forEach(ev=>g.addEventListener(ev,()=>litPin(p,true)));
+  ["pointerleave","blur"].forEach(ev=>g.addEventListener(ev,()=>litPin(p,false)));});
+tb.querySelectorAll("tr").forEach(tr=>{tr.addEventListener("pointerenter",()=>litPin(tr.dataset.pin,true));tr.addEventListener("pointerleave",()=>litPin(tr.dataset.pin,false));});
+
+/* ---------- Multímetro ---------- */
+const CORR="Corrente se mede em série: abra o circuito e coloque o multímetro no lugar de um fio. Nunca encoste as pontas direto numa fonte nesta posição.";
+const OHM="Mede resistência. Desligue o circuito antes (sem USB, sem bateria) e escolha uma escala acima do valor esperado.";
+const DCV="Mede tensão contínua: pilhas, baterias, os pinos 5V e 3.3V, a saída de um pino digital. Ponta preta no GND, vermelha no ponto a medir.";
+const M=[
+ {l:"OFF",g:"off",n:"Desligado",j:null,d:"",u:"",w:"Multímetro desligado.",h:"Sempre volte para OFF ao terminar: a bateria de 9 V dura muito mais."},
+ {l:"750",g:"acv",n:"Tensão alternada até 750 V",j:"v",d:"127",u:"AC V",w:"Mede tensão AC, a da tomada.",h:"Tomada no Brasil: 127 V ou 220 V, por isso esta escala. Rede elétrica é perigosa, e para Arduino e ESP32 você não precisa dela."},
+ {l:"200",g:"acv",n:"Tensão alternada até 200 V",j:"v",d:"127.0",u:"AC V",w:"Mesma medição, com uma casa decimal a mais.",h:"Em 220 V o visor mostra “1” (estouro). Mesmo cuidado com a rede elétrica."},
+ {l:"2000µ",g:"dca",n:"Corrente contínua até 2000 µA",j:"v",d:"1",u:"DC µA",w:CORR,h:"Exemplo: um LED com 220 Ω puxa ~13,6 mA, bem acima de 2 mA. O visor mostra “1”: suba para 20m."},
+ {l:"20m",g:"dca",n:"Corrente contínua até 20 mA",j:"v",d:"13.60",u:"DC mA",w:CORR,h:"Melhor escala para medir a corrente de um LED: 13,60 mA com o vermelho + 220 Ω no 5 V."},
+ {l:"200m",g:"dca",n:"Corrente contínua até 200 mA",j:"v",d:"13.6",u:"DC mA",w:CORR,h:"Mede o mesmo LED com uma casa decimal a menos. O fusível interno protege até 200 mA."},
+ {l:"10A",g:"dca",n:"Corrente contínua até 10 A",j:"a",d:"0.01",u:"DC A",w:CORR,h:"Ponta vermelha muda para o 10ADC. Essa entrada não tem fusível: só medições curtas, de poucos segundos."},
+ {l:"hFE",g:"misc",n:"Ganho de transistor (hFE)",j:null,d:"215",u:"hFE",w:"Mede o ganho de transistores bipolares usando o soquete redondo, não as pontas.",h:"Encaixe o transistor no lado NPN ou PNP, com as pernas E, B e C nos furos certos. Útil quando o kit trouxer transistores como o BC547."},
+ {l:"⎍",g:"misc",n:"Saída de onda quadrada",j:"v",d:"",u:"",w:"Gera um sinal quadrado (por volta de 50 Hz) nas pontas, para testar entradas de áudio ou sinal.",h:"Pouco usado no começo. Função deduzida pelo símbolo; confira no manual do seu modelo."},
+ {l:"→|",g:"dio",n:"Diodo e continuidade",j:"v",d:"1782",u:"mV",w:"Dois usos: apita quando os dois pontos estão ligados entre si, e mostra a queda de tensão de um diodo ou LED em mV.",h:"Continuidade é o teste mais útil: confere fio partido, furos ligados na protoboard e curto entre 5V e GND. No LED, vermelha na perna longa: ele pode até acender fraquinho. Sempre com o circuito desligado."},
+ {l:"200",g:"ohm",n:"Resistência até 200 Ω",j:"v",d:"1",u:"Ω",w:OHM,h:"Exemplo com um resistor de 220 Ω: passa de 200, o visor mostra “1”. Suba a escala."},
+ {l:"2000",g:"ohm",n:"Resistência até 2000 Ω",j:"v",d:"218",u:"Ω",w:OHM,h:"Melhor escala para o resistor de 220 Ω: lê 218 (dentro dos ±5%)."},
+ {l:"20k",g:"ohm",n:"Resistência até 20 kΩ",j:"v",d:"0.21",u:"kΩ",w:OHM,h:"O mesmo 220 Ω aparece como 0,21 kΩ. Boa escala para 1 kΩ e 10 kΩ."},
+ {l:"200k",g:"ohm",n:"Resistência até 200 kΩ",j:"v",d:"0.2",u:"kΩ",w:OHM,h:"Precisão baixa para valores pequenos: 0,2 kΩ."},
+ {l:"2000k",g:"ohm",n:"Resistência até 2000 kΩ",j:"v",d:"0",u:"kΩ",w:OHM,h:"Para valores muito altos, de megaohms. Para 220 Ω mostra só 0."},
+ {l:"200m",g:"dcv",n:"Tensão contínua até 200 mV",j:"v",d:"1",u:"DC mV",w:DCV,h:"Exemplo no pino 5V do Uno: 5 V passa do limite e o visor mostra “1”. Suba a escala."},
+ {l:"2000m",g:"dcv",n:"Tensão contínua até 2000 mV",j:"v",d:"1",u:"DC mV",w:DCV,h:"Ainda pequena para 5 V: estouro. Serve para medir a queda num LED ou sinais pequenos."},
+ {l:"20",g:"dcv",n:"Tensão contínua até 20 V",j:"v",d:"5.02",u:"DC V",w:DCV,h:"A escala que você mais vai usar: lê 5,02 no pino 5V e 3,30 no 3.3V, com duas casas decimais."},
+ {l:"200",g:"dcv",n:"Tensão contínua até 200 V",j:"v",d:"5.0",u:"DC V",w:DCV,h:"Lê os 5 V, mas com menos precisão."},
+ {l:"1000",g:"dcv",n:"Tensão contínua até 1000 V",j:"v",d:"5",u:"DC V",w:DCV,h:"Só para tensões altas. Para 5 V mostra só 5."}
+];
+const GCOL={off:"#FF9C8F",dcv:"#F3F4F6",acv:"#F2D774",dca:"#7FD6A4",ohm:"#8EC5FF",dio:"#FF9C8F",misc:"#C9CED6"};
+const GNAME={off:"",dcv:"DCV",acv:"ACV",dca:"DCA",ohm:"Ω",dio:"",misc:""};
+const CX=180,CY=262;
+const mmL=document.getElementById("mm-labels"),mmInfo=document.getElementById("mm-info");
+const mmItems=[];
+M.forEach((m,i)=>{
+  const a=(i*18-90)*Math.PI/180;
+  const g=el("g",{class:"hot",tabindex:0,role:"button","aria-label":(GNAME[m.g]+" "+m.n).trim()},mmL);
+  el("circle",{cx:CX+92*Math.cos(a),cy:CY+92*Math.sin(a),r:2.6,fill:GCOL[m.g]},g);
+  const tx=CX+118*Math.cos(a),ty=CY+118*Math.sin(a);
+  el("text",{x:tx,y:ty,"text-anchor":"middle","dominant-baseline":"middle","font-size":m.l.length>4?10.5:12,"font-weight":600,fill:GCOL[m.g],"font-family":MONO},g,m.l);
+  el("rect",{x:tx-21,y:ty-12,width:42,height:24,rx:4,class:"hit"},g);
+  g.addEventListener("click",()=>selMM(i));
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selMM(i)}
+    if(e.key==="ArrowRight"||e.key==="ArrowDown"){e.preventDefault();selMM((i+1)%20,true)}
+    if(e.key==="ArrowLeft"||e.key==="ArrowUp"){e.preventDefault();selMM((i+19)%20,true)}});
+  mmItems.push(g);
+});
+const jacks={a:{x:80,lab:"10ADC"},v:{x:180,lab:"VΩmA"},c:{x:280,lab:"COM"}};
+const mmJ=document.getElementById("mm-jacks");const jackEls={};
+Object.entries(jacks).forEach(([k,o])=>{
+  el("text",{x:o.x,y:410,"text-anchor":"middle","font-size":11,fill:"#E6E8EA","font-family":MONO},mmJ,o.lab);
+  const ring=el("circle",{cx:o.x,cy:444,r:19,fill:"none",stroke:"transparent","stroke-width":3},mmJ);
+  el("circle",{cx:o.x,cy:444,r:13,fill:"#0E0F10",stroke:"#555B61","stroke-width":2},mmJ);
+  const plug=el("circle",{cx:o.x,cy:444,r:7,fill:"transparent"},mmJ);
+  jackEls[k]={ring,plug};
+});
+const ptr=document.getElementById("mm-pointer");
+function selMM(i,focus){
+  const m=M[i];
+  ptr.style.transformOrigin=CX+"px "+CY+"px";ptr.style.transform=`rotate(${i*18}deg)`;
+  mmItems.forEach((g,k)=>{g.classList.toggle("on",k===i);g.setAttribute("aria-pressed",k===i)});
+  if(focus)mmItems[i].focus();
+  document.getElementById("mm-disp").textContent=m.d;
+  document.getElementById("mm-unit").textContent=m.u;
+  const red=m.j==="a"?"a":m.j==="v"?"v":null;
+  Object.entries(jackEls).forEach(([k,o])=>{
+    const used=(k===red)||(k==="c"&&m.j);
+    o.ring.setAttribute("stroke",used?(k==="c"?"#9AA1A8":"#E5484D"):"transparent");
+    o.plug.setAttribute("fill",used?(k==="c"?"#3A3F45":"#E5484D"):"transparent");
+  });
+  const where=m.j==="a"?"Vermelha no 10ADC, preta no COM":m.j==="v"?"Vermelha no VΩmA, preta no COM":(m.g==="off"?"—":"Pontas não são usadas");
+  mmInfo.innerHTML=`<p class="label"></p><h3></h3><p class="w"></p><p class="tip"></p><p class="mono" style="font-size:.82rem"></p>`;
+  mmInfo.querySelector(".label").textContent=(GNAME[m.g]?GNAME[m.g]+" · ":"")+"posição "+m.l;
+  mmInfo.querySelector("h3").textContent=m.n;
+  mmInfo.querySelector(".w").textContent=m.w;
+  mmInfo.querySelector(".tip").textContent=m.h;
+  mmInfo.querySelector(".mono").textContent="Pontas: "+where;
+}
+selMM(17);
+
+/* ---------- Protoboard ---------- */
+const bb=document.getElementById("bb-svg");
+const X=c=>34+(c-1)*15;
+const Y={rtN:24,rtP:39,j:68,i:83,h:98,g:113,f:128,e:163,d:178,c:193,b:208,a:223,rbN:252,rbP:267};
+el("rect",{x:4,y:6,width:492,height:278,rx:6,fill:"#F3F1EC",stroke:"#CFCBC2"},bb);
+el("rect",{x:26,y:139,width:456,height:13,fill:"#E4E0D7"},bb);
+[[14,"#3B82C4"],[49,"#E0475A"],[242,"#3B82C4"],[277,"#E0475A"]].forEach(([y,c])=>el("line",{x1:30,y1:y,x2:472,y2:y,stroke:c,"stroke-width":1.6},bb));
+[["−",Y.rtN,"#3B82C4"],["+",Y.rtP,"#E0475A"],["−",Y.rbN,"#3B82C4"],["+",Y.rbP,"#E0475A"]].forEach(([t,y,c])=>el("text",{x:14,y:y+1,"text-anchor":"middle","dominant-baseline":"middle","font-size":14,"font-weight":700,fill:c,"font-family":MONO},bb,t));
+["j","i","h","g","f","e","d","c","b","a"].forEach(r=>{el("text",{x:14,y:Y[r]+1,"text-anchor":"middle","dominant-baseline":"middle","font-size":10,fill:"#6B6A66","font-family":MONO},bb,r);el("text",{x:488,y:Y[r]+1,"text-anchor":"middle","dominant-baseline":"middle","font-size":10,fill:"#6B6A66","font-family":MONO},bb,r);});
+[1,5,10,15,20,25,30].forEach(c=>{el("text",{x:X(c),y:57,"text-anchor":"middle","font-size":9,fill:"#6B6A66","font-family":MONO},bb,c);el("text",{x:X(c),y:239,"text-anchor":"middle","font-size":9,fill:"#6B6A66","font-family":MONO},bb,c);});
+function hole(x,y,grp){return el("rect",{x:x-3.6,y:y-3.6,width:7.2,height:7.2,rx:1.2,fill:"#3B3B3B",class:"bb-hole","data-g":grp},bb);}
+const railCols=[];[1,7,13,19,25].forEach(s=>{for(let k=0;k<5;k++)railCols.push(s+k);});
+railCols.forEach(c=>{hole(X(c),Y.rtN,"rtN");hole(X(c),Y.rtP,"rtP");hole(X(c),Y.rbN,"rbN");hole(X(c),Y.rbP,"rbP");});
+for(let c=1;c<=30;c++){["j","i","h","g","f"].forEach(r=>hole(X(c),Y[r],"t"+c));["e","d","c","b","a"].forEach(r=>hole(X(c),Y[r],"b"+c));}
+const cap=document.getElementById("bb-cap");
+function capFor(g){
+  if(g==="rtN")return"Trilho − de cima: os 25 furos estão ligados ao longo da placa. Ligue no GND.";
+  if(g==="rtP")return"Trilho + de cima: os 25 furos estão ligados ao longo da placa. Ligue no 5V (ou 3,3 V).";
+  if(g==="rbN")return"Trilho − de baixo: ligado só a ele mesmo, não ao − de cima.";
+  if(g==="rbP")return"Trilho + de baixo: ligado só a ele mesmo, não ao + de cima.";
+  const n=g.slice(1);return g[0]==="t"?`Fileira ${n}, furos f a j: os 5 estão ligados entre si (e não aos a–e da mesma fileira).`:`Fileira ${n}, furos a a e: os 5 estão ligados entre si (e não aos f–j da mesma fileira).`;
+}
+let cur=null;
+function lightBB(g){if(g===cur)return;cur=g;bb.querySelectorAll(".bb-hole").forEach(h=>h.setAttribute("fill",h.dataset.g===g?"var(--copper)":"#3B3B3B"));cap.textContent=capFor(g);}
+bb.addEventListener("pointerover",e=>{const h=e.target.closest(".bb-hole");if(h)lightBB(h.dataset.g);});
+bb.addEventListener("click",e=>{const h=e.target.closest(".bb-hole");if(h)lightBB(h.dataset.g);});
+lightBB("b10");
+
+/* ---------- Montagens ---------- */
+(function(){
+  // furos da protoboard parcial (montagem 2)
+  const g=document.getElementById("bb2-holes");
+  const X=c=>50+(c-1)*24, R={j:40,i:60,h:80,g:100,f:120,e:160,d:180,c:200,b:220,a:240};
+  Object.entries(R).forEach(([r,y])=>{for(let c=1;c<=20;c++)el("rect",{x:X(c)-4.5,y:y-4.5,width:9,height:9,rx:1.5,fill:"#3B3B3B"},g);
+    el("text",{x:32,y:y+4,"text-anchor":"middle","font-size":11,fill:"#6B6A66","font-family":MONO},g,r);});
+  [1,5,10,15,20].forEach(c=>el("text",{x:X(c),y:30,"text-anchor":"middle","font-size":10,fill:"#6B6A66","font-family":MONO},g,c));
+  [1,2,3,4,5,7,8,9,10,11,13,14,15,16,17,19,20].forEach(c=>{el("rect",{x:X(c)-4.5,y:267.5,width:9,height:9,rx:1.5,fill:"#3B3B3B"},g);el("rect",{x:X(c)-4.5,y:287.5,width:9,height:9,rx:1.5,fill:"#3B3B3B"},g);});
+  [10,11].forEach(c=>el("text",{x:X(c),y:30,"text-anchor":"middle","font-size":10,"font-weight":700,fill:"#A85A22","font-family":MONO},g,c));
+
+  // mapa de ligação do LCD (montagem 3)
+  const s=document.getElementById("lcd-wiring");
+  el("rect",{x:16,y:16,width:210,height:410,rx:8,fill:"#2E7A3C",stroke:"#1F5A2B"},s);
+  el("rect",{x:30,y:36,width:66,height:370,rx:3,fill:"#C5CACF"},s);
+  el("rect",{x:38,y:46,width:50,height:350,rx:2,fill:"#A3BB6E"},s);
+  el("text",{x:63,y:221,"text-anchor":"middle","font-size":13,fill:"#26331A","font-family":MONO,transform:"rotate(90 63 221)"},s,"LCD 16×2");
+  el("text",{x:420,y:30,"text-anchor":"middle","font-size":11,class:"svg-muted","font-family":MONO,"letter-spacing":1},s,"NO ARDUINO");
+  const PY=p=>52+(p-1)*27;
+  const names=["VSS","VDD","V0","RS","RW","E","D0","D1","D2","D3","D4","D5","D6","D7"];
+  const W={1:["#2A2A2A","GND · fileira POWER",2],2:["#E0475A","5V · fileira POWER",3],3:["#2A2A2A","GND · POWER (o outro)",4],4:["#2C64C8","pino 12 · DIGITAL",5],5:["#2A2A2A","GND · DIGITAL, ao lado do 13",6],6:["#7D4FB5","pino 11 · DIGITAL",7],11:["#EE7B22","pino 5 · DIGITAL",9],12:["#F2C230","pino 4 · DIGITAL",9],13:["#2E9E4F","pino ~3 · DIGITAL",9],14:["#E8E8E8","pino 2 · DIGITAL",9]};
+  for(let p=1;p<=14;p++){
+    const y=PY(p);
+    el("text",{x:188,y:y+4,"text-anchor":"end","font-size":11,fill:"#E8F0E4","font-family":MONO},s,p+" "+names[p-1]);
+    el("rect",{x:198,y:y-7,width:14,height:14,fill:"#1C1F22"},s);
+    el("circle",{cx:205,cy:y,r:3.4,fill:"#C8A64B"},s);
+    const w=W[p];
+    if(w){
+      const grp=el("g",{"data-s":w[2]},s);
+      el("line",{x1:205,y1:y,x2:330,y2:y,stroke:w[0],"stroke-width":5,"stroke-linecap":"round"},grp);
+      if(w[0]==="#E8E8E8")el("line",{x1:205,y1:y,x2:330,y2:y,stroke:"#9AA1A8","stroke-width":1,"stroke-dasharray":"0"},grp);
+      const b=el("g",{class:"badge"},grp);
+      el("rect",{x:330,y:y-11,width:220,height:22,rx:4},b);
+      el("text",{x:340,y:y+4,"font-size":11.5,class:"svg-ink","font-family":MONO},b,w[1]);
+    }
+  }
+  const free=el("g",{"data-s":8},s);
+  el("path",{d:`M222 ${PY(7)-8} h12 v${PY(10)-PY(7)+16} h-12`,fill:"none",class:"sch","stroke-width":1.5},free);
+  el("text",{x:244,y:(PY(7)+PY(10))/2+4,"font-size":12,class:"svg-muted","font-family":"IBM Plex Sans, sans-serif"},free,"7 a 10: deixe livres");
+})();
+document.querySelectorAll("[data-mont]").forEach(root=>{
+  const parts=[...root.querySelectorAll("svg [data-s]")],items=[...root.querySelectorAll(".mlist li")],n=items.length;
+  const prev=root.querySelector("[data-prev]"),next=root.querySelector("[data-next]"),out=root.querySelector(".mcount");
+  let cur=1;
+  function go(k){cur=Math.max(1,Math.min(n,k));
+    parts.forEach(p=>{const st=+p.dataset.s;p.classList.toggle("future",st>cur);p.classList.toggle("now",st===cur);});
+    items.forEach((li,i)=>{li.classList.toggle("cur",i+1===cur);li.classList.toggle("done",i+1<cur);if(i+1===cur)li.setAttribute("aria-current","step");else li.removeAttribute("aria-current");});
+    out.textContent=`Passo ${cur} de ${n}`;prev.disabled=cur===1;next.disabled=cur===n;}
+  prev.addEventListener("click",()=>go(cur-1));next.addEventListener("click",()=>go(cur+1));
+  items.forEach((li,i)=>{li.addEventListener("click",()=>go(i+1));li.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go(i+1)}});});
+  go(1);
+});
+
+/* ---------- copy ---------- */
+document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{
+  const pre=document.getElementById(b.dataset.copy),txt=pre.textContent;
+  const done=()=>{b.textContent="Copiado";setTimeout(()=>b.textContent="Copiar",1500)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Selecionado";setTimeout(()=>b.textContent="Copiar",1500)};
+  try{navigator.clipboard.writeText(txt).then(done,fallback);}catch(e){fallback();}
+}));
+})();
+</script>
