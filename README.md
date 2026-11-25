@@ -34,7 +34,16 @@ O inventário completo, com desenhos interativos de cada peça, está em [`banca
 - **Protoboard** de 400 pontos
 - **Multímetro digital** Thompson (estilo DT830)
 - **Fios jumper** macho-macho
-- A caminho: **ESP32** e um kit de componentes
+- **ESP32 Basic Starter Kit**:
+  - 1 placa ESP32 (micro-USB, lógica de 3,3 V)
+  - 1 display OLED 0,96″ (I²C)
+  - 1 protoboard de 830 pontos
+  - sensores, 1 de cada: obstáculo infravermelho, luz (LDR), temperatura e umidade (DHT11), presença (PIR HC-SR501)
+  - 1 potenciômetro 10 kΩ
+  - 2 buzzers (1 ativo, 1 passivo)
+  - 1 módulo relé de 2 canais (5 V)
+  - 6 botões
+  - também: resistores (220 Ω, 1 kΩ, 10 kΩ), LEDs (vermelhos, amarelos, verdes e RGB), jumpers (macho-macho, macho-fêmea, fêmea-fêmea) e cabo micro-USB
 
 Fotos de cada peça em [`fotos-componentes/`](fotos-componentes/).
 
